@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 export function cn(...inputs: (string | boolean | null | undefined)[]) {
   return inputs.filter(Boolean).join(' ');
 }
@@ -106,7 +108,6 @@ export function getLocaleFromLanguage(lang: string): string {
 
 export async function isSuperAdmin(userId: string): Promise<boolean> {
   try {
-    const { supabase } = await import('./supabase');
     const { data, error } = await supabase
       .from('admin_users')
       .select('role')
