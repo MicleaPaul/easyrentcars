@@ -38,7 +38,7 @@ export function WarningModal({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-lg transition-all duration-200 group"
-            aria-label={t['modal.close'] || 'Close'}
+            aria-label={t('modal.close') || 'Close'}
           >
             <X className="w-5 h-5 text-[#9AA0A6] group-hover:text-white transition-colors" />
           </button>
@@ -50,7 +50,7 @@ export function WarningModal({
             </div>
 
             <h2 id="warning-modal-title" className="text-2xl font-bold text-white mt-4">
-              {title || t['modal.warning'] || 'Warning'}
+              {title || t('modal.warning') || 'Warning'}
             </h2>
           </div>
         </div>
@@ -70,7 +70,7 @@ export function WarningModal({
             onClick={onClose}
             className="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold rounded-lg hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-200"
           >
-            {t['modal.understood'] || 'Understood'}
+            {t('modal.understood') || 'Understood'}
           </button>
         </div>
       </div>

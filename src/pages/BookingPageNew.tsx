@@ -151,25 +151,25 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
     e.preventDefault();
 
     if (!acceptedTerms) {
-      setWarningMessage(t['modal.warning'] || 'Please accept the terms and conditions');
+      setWarningMessage(t('modal.warning') || 'Please accept the terms and conditions');
       setShowWarningModal(true);
       return;
     }
 
     if (!car || !id) {
-      setErrorMessage(t['modal.error'] || 'Vehicle information is missing');
+      setErrorMessage(t('modal.error') || 'Vehicle information is missing');
       setShowErrorModal(true);
       return;
     }
 
     if (!pickupLocation || !returnLocation) {
-      setWarningMessage(t['modal.warning'] || 'Please select pickup and return locations');
+      setWarningMessage(t('modal.warning') || 'Please select pickup and return locations');
       setShowWarningModal(true);
       return;
     }
 
     if (!pickupDate || !returnDate) {
-      setWarningMessage(t['modal.warning'] || 'Please select pickup and return dates');
+      setWarningMessage(t('modal.warning') || 'Please select pickup and return dates');
       setShowWarningModal(true);
       return;
     }

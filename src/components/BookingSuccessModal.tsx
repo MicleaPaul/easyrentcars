@@ -1,4 +1,4 @@
-import { CheckCircle, X, TestTube, Calendar, CreditCard, Hash, ArrowRight, ExternalLink } from 'lucide-react';
+import { CheckCircle, X, TestTube, Calendar, CreditCard, Hash, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -47,7 +47,7 @@ export function BookingSuccessModal({
           <button
             onClick={onClose}
             className="absolute top-3 right-3 p-2 hover:bg-white/10 rounded-lg transition-all duration-200 group"
-            aria-label={t['modal.close'] || 'Close'}
+            aria-label={t('modal.close') || 'Close'}
           >
             <X className="w-4 h-4 text-[#9AA0A6] group-hover:text-white transition-colors" />
           </button>
@@ -62,15 +62,15 @@ export function BookingSuccessModal({
               {isTestMode ? (
                 <span className="flex items-center justify-center gap-2">
                   <TestTube className="w-5 h-5 sm:w-6 sm:h-6" />
-                  {t['modal.testBookingCreated'] || 'TEST BOOKING CREATED'}
+                  {t('modal.testBookingCreated') || 'TEST BOOKING CREATED'}
                 </span>
               ) : (
-                t['modal.bookingConfirmed'] || 'Booking Confirmed!'
+                t('modal.bookingConfirmed') || 'Booking Confirmed!'
               )}
             </h2>
 
             <p className="text-[#9AA0A6] text-sm">
-              {t['modal.bookingSuccessMessage'] || 'Your booking has been successfully created'}
+              {t('modal.bookingSuccessMessage') || 'Your booking has been successfully created'}
             </p>
           </div>
         </div>
@@ -81,7 +81,7 @@ export function BookingSuccessModal({
           <div className="bg-[#0B0C0F] border border-[#D4AF37]/30 rounded-xl p-3 sm:p-4 space-y-2">
             <div className="flex items-center gap-2 text-[#9AA0A6] text-xs font-medium">
               <Hash className="w-3.5 h-3.5" />
-              <span>{t['modal.bookingId'] || 'Booking ID'}</span>
+              <span>{t('modal.bookingId') || 'Booking ID'}</span>
             </div>
             <div className="font-mono text-[#D4AF37] text-base sm:text-lg font-bold tracking-wider break-all">
               {bookingId}
@@ -94,13 +94,13 @@ export function BookingSuccessModal({
             <div className="bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg p-3">
               <div className="flex items-center gap-1.5 text-[#9AA0A6] text-xs mb-1.5">
                 <Calendar className="w-3.5 h-3.5" />
-                <span>{t['modal.status'] || 'Status'}</span>
+                <span>{t('modal.status') || 'Status'}</span>
               </div>
               <div className="text-white font-semibold text-sm">
                 {isTestMode ? (
-                  <span className="text-yellow-500">{t['modal.testMode'] || 'Test Mode'}</span>
+                  <span className="text-yellow-500">{t('modal.testMode') || 'Test Mode'}</span>
                 ) : (
-                  <span className="text-green-500">{t['modal.confirmed'] || 'Confirmed'}</span>
+                  <span className="text-green-500">{t('modal.confirmed') || 'Confirmed'}</span>
                 )}
               </div>
             </div>
@@ -109,12 +109,12 @@ export function BookingSuccessModal({
             <div className="bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg p-3">
               <div className="flex items-center gap-1.5 text-[#9AA0A6] text-xs mb-1.5">
                 <CreditCard className="w-3.5 h-3.5" />
-                <span>{t['modal.payment'] || 'Payment'}</span>
+                <span>{t('modal.payment') || 'Payment'}</span>
               </div>
               <div className="text-white font-semibold text-sm">
-                {paymentMethod === 'cash' && (t['modal.cash'] || 'Cash')}
-                {paymentMethod === 'stripe' && (t['modal.card'] || 'Card')}
-                {paymentMethod === 'skipped' && (t['modal.skipped'] || 'Skipped')}
+                {paymentMethod === 'cash' && (t('modal.cash') || 'Cash')}
+                {paymentMethod === 'stripe' && (t('modal.card') || 'Card')}
+                {paymentMethod === 'skipped' && (t('modal.skipped') || 'Skipped')}
               </div>
             </div>
           </div>
@@ -125,9 +125,9 @@ export function BookingSuccessModal({
               <div className="flex items-start gap-2">
                 <TestTube className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                 <div className="text-xs sm:text-sm text-yellow-200/90 leading-relaxed">
-                  <p className="font-semibold mb-1">{t['modal.testModeNotice'] || 'Test Mode Active'}</p>
+                  <p className="font-semibold mb-1">{t('modal.testModeNotice') || 'Test Mode Active'}</p>
                   <p className="text-yellow-200/70 text-xs">
-                    {t['modal.testModeDescription'] || 'This booking was created in test mode and will be marked accordingly. Email notifications will still be sent.'}
+                    {t('modal.testModeDescription') || 'This booking was created in test mode and will be marked accordingly. Email notifications will still be sent.'}
                   </p>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export function BookingSuccessModal({
           {/* Success Message */}
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
             <p className="text-green-200 text-xs sm:text-sm text-center leading-relaxed">
-              {t['modal.emailConfirmationSent'] || 'A confirmation email has been sent to your email address with all the booking details.'}
+              {t('modal.emailConfirmationSent') || 'A confirmation email has been sent to your email address with all the booking details.'}
             </p>
           </div>
         </div>
@@ -148,7 +148,7 @@ export function BookingSuccessModal({
             onClick={handleViewDetails}
             className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-bold text-sm rounded-lg hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-200 flex items-center justify-center gap-2 group"
           >
-            <span>{t['modal.viewBookingDetails'] || 'View Booking Details'}</span>
+            <span>{t('modal.viewBookingDetails') || 'View Booking Details'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
 
@@ -156,7 +156,7 @@ export function BookingSuccessModal({
             onClick={onClose}
             className="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#0B0C0F] border border-[#D4AF37]/30 text-white font-semibold text-sm rounded-lg hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] transition-all duration-200"
           >
-            {t['modal.close'] || 'Close'}
+            {t('modal.close') || 'Close'}
           </button>
         </div>
       </div>
