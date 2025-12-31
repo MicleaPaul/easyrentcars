@@ -2,11 +2,21 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
-};
+const ALLOWED_ORIGINS = [
+  'https://easyrentcars.rentals',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  };
+}
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -18,6 +28,8 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
 });
 
 Deno.serve(async (req: Request) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
@@ -79,11 +91,11 @@ Deno.serve(async (req: Request) => {
     const serverUnlimitedKmFee = unlimited_km_fee > 0 ? dbUnlimitedKmFeePerDay * rental_days : 0;
 
     if (Math.abs(cleaning_fee - serverCleaningFee) > 0.01) {
-      console.warn(`⚠️ Cleaning fee mismatch: Frontend sent ${cleaning_fee}, using server value ${serverCleaningFee}`);
+      console.warn(`Warning: Cleaning fee mismatch: Frontend sent ${cleaning_fee}, using server value ${serverCleaningFee}`);
     }
 
     if (Math.abs(unlimited_km_fee - serverUnlimitedKmFee) > 0.01) {
-      console.warn(`⚠️ Unlimited KM fee mismatch: Frontend sent ${unlimited_km_fee}, using server value ${serverUnlimitedKmFee}`);
+      console.warn(`Warning: Unlimited KM fee mismatch: Frontend sent ${unlimited_km_fee}, using server value ${serverUnlimitedKmFee}`);
     }
 
     const actualCleaningFee = serverCleaningFee;
@@ -91,7 +103,7 @@ Deno.serve(async (req: Request) => {
     const serverTotal = (rental_days * price_per_day) + actualCleaningFee + location_fees + after_hours_fee + actualUnlimitedKmFee;
 
     if (Math.abs(total_amount - serverTotal) > 0.01) {
-      console.warn(`⚠️ Total amount mismatch: Frontend sent ${total_amount}, server calculated ${serverTotal}`);
+      console.warn(`Warning: Total amount mismatch: Frontend sent ${total_amount}, server calculated ${serverTotal}`);
     }
 
     const isCashPayment = payment_method === 'cash';
@@ -226,8 +238,11 @@ Deno.serve(async (req: Request) => {
     );
   } catch (error: any) {
     console.error('Error creating checkout session:', error);
+    const safeMessage = error.message?.includes('Vehicle')
+      ? error.message
+      : 'An error occurred while processing your request';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: safeMessage }),
       {
         status: 500,
         headers: {
