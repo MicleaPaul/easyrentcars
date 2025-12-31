@@ -48,7 +48,7 @@ Deno.serve(async (req: Request) => {
         enabled: true,
       },
       metadata: {
-        service: "EazyRentGraz",
+        service: "EasyRentCars",
         created_via: "supabase_edge_function",
         ...(bookingDetails && {
           booking_id: bookingDetails.booking_id,
