@@ -121,8 +121,8 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
-        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
+      <div className="min-h-screen bg-[#0B0C0F] pt-20 xs:pt-24 pb-16">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
           <div className="text-center text-[#9AA0A6] py-12">{t('carDetails.loading')}</div>
         </div>
       </div>
@@ -131,14 +131,14 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
 
   if (!car) {
     return (
-      <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
-        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
+      <div className="min-h-screen bg-[#0B0C0F] pt-20 xs:pt-24 pb-16">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors mb-8 group"
+            className="flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors mb-6 xs:mb-8 group min-h-touch touch-manipulation"
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-semibold uppercase tracking-wide text-sm">{t('carDetails.backToFleet')}</span>
+            <span className="font-semibold uppercase tracking-wide text-xs xs:text-sm">{t('carDetails.backToFleet')}</span>
           </button>
           <div className="text-center text-[#9AA0A6] py-12">{t('carDetails.notFound')}</div>
         </div>
@@ -147,20 +147,20 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
+    <div className="min-h-screen bg-[#0B0C0F] pt-20 xs:pt-24 pb-24 lg:pb-16">
+      <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors mb-8 group"
+          className="flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors mb-5 xs:mb-8 group min-h-touch touch-manipulation active:opacity-70"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-semibold uppercase tracking-wide text-sm">{t('carDetails.backToFleet')}</span>
+          <span className="font-semibold uppercase tracking-wide text-xs xs:text-sm">{t('carDetails.backToFleet')}</span>
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 xs:gap-6 lg:gap-12">
+          <div className="lg:col-span-2 space-y-4 xs:space-y-6">
             <div className="card-luxury overflow-hidden">
-              <div className="relative aspect-video bg-gradient-to-br from-[#111316] to-[#0B0C0F]">
+              <div className="relative aspect-[16/10] xs:aspect-video bg-gradient-to-br from-[#111316] to-[#0B0C0F]">
                 <img
                   src={car.images[selectedImage] || 'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg'}
                   alt={`${car.brand} ${car.model} ${car.year} - View ${selectedImage + 1} of ${car.images.length}`}
@@ -174,12 +174,12 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
               </div>
 
               {car.images.length > 1 && (
-                <div className="p-4 flex gap-3 overflow-x-auto">
+                <div className="p-3 xs:p-4 flex gap-2 xs:gap-3 overflow-x-auto scrollbar-hide">
                   {car.images.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedImage(idx)}
-                      className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                      className={`flex-shrink-0 w-20 xs:w-24 h-14 xs:h-16 rounded-lg overflow-hidden border-2 transition-all touch-manipulation active:scale-95 ${
                         selectedImage === idx
                           ? 'border-[#D4AF37] scale-105'
                           : 'border-[#D4AF37]/20 hover:border-[#D4AF37]/50'
@@ -192,91 +192,91 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
               )}
             </div>
 
-            <div className="card-luxury p-6 sm:p-8">
-              <div className="mb-6">
-                <p className="text-[#D4AF37] text-xs font-semibold tracking-widest uppercase mb-2">
+            <div className="card-luxury p-4 xs:p-5 sm:p-8">
+              <div className="mb-4 xs:mb-6">
+                <p className="text-[#D4AF37] text-[10px] xs:text-xs font-semibold tracking-widest uppercase mb-1 xs:mb-2">
                   {car.category}
                 </p>
-                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
+                <h1 className="text-3xl xs:text-4xl sm:text-5xl font-bold text-white mb-1 xs:mb-2">
                   {car.brand} {car.model}
                 </h1>
-                <p className="text-[#9AA0A6] text-lg">{car.year}</p>
+                <p className="text-[#9AA0A6] text-base xs:text-lg">{car.year}</p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-                <div className="flex items-center gap-3 text-[#9AA0A6]">
-                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center">
-                    <Settings className="w-5 h-5 text-[#D4AF37]" />
+              <div className="grid grid-cols-2 gap-3 xs:gap-4 mb-6 xs:mb-8">
+                <div className="flex items-center gap-2 xs:gap-3 text-[#9AA0A6]">
+                  <div className="w-9 xs:w-10 h-9 xs:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                    <Settings className="w-4 xs:w-5 h-4 xs:h-5 text-[#D4AF37]" />
                   </div>
-                  <div>
-                    <p className="text-xs text-[#9AA0A6]">{t('carDetails.transmission')}</p>
-                    <p className="text-white font-semibold">{car.transmission}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-[#9AA0A6]">
-                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center">
-                    <Fuel className="w-5 h-5 text-[#D4AF37]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-[#9AA0A6]">{t('carDetails.fuel')}</p>
-                    <p className="text-white font-semibold">{car.fuel_type}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{t('carDetails.transmission')}</p>
+                    <p className="text-white font-semibold text-sm xs:text-base truncate">{car.transmission}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-[#9AA0A6]">
-                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-[#D4AF37]" />
+                <div className="flex items-center gap-2 xs:gap-3 text-[#9AA0A6]">
+                  <div className="w-9 xs:w-10 h-9 xs:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                    <Fuel className="w-4 xs:w-5 h-4 xs:h-5 text-[#D4AF37]" />
                   </div>
-                  <div>
-                    <p className="text-xs text-[#9AA0A6]">{t('carDetails.seats')}</p>
-                    <p className="text-white font-semibold">{car.seats}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-[#9AA0A6]">
-                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center">
-                    <DoorOpen className="w-5 h-5 text-[#D4AF37]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-[#9AA0A6]">{t('carDetails.doors')}</p>
-                    <p className="text-white font-semibold">{car.doors}</p>
+                  <div className="min-w-0">
+                    <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{t('carDetails.fuel')}</p>
+                    <p className="text-white font-semibold text-sm xs:text-base truncate">{car.fuel_type}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-[#9AA0A6]">
-                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center">
-                    <Gauge className="w-5 h-5 text-[#D4AF37]" />
+                <div className="flex items-center gap-2 xs:gap-3 text-[#9AA0A6]">
+                  <div className="w-9 xs:w-10 h-9 xs:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-4 xs:w-5 h-4 xs:h-5 text-[#D4AF37]" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#9AA0A6]">{t('carDetails.luggage')}</p>
-                    <p className="text-white font-semibold">{car.luggage} {t('carDetails.bags')}</p>
+                    <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{t('carDetails.seats')}</p>
+                    <p className="text-white font-semibold text-sm xs:text-base">{car.seats}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-[#9AA0A6]">
-                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-[#D4AF37]" />
+                <div className="flex items-center gap-2 xs:gap-3 text-[#9AA0A6]">
+                  <div className="w-9 xs:w-10 h-9 xs:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                    <DoorOpen className="w-4 xs:w-5 h-4 xs:h-5 text-[#D4AF37]" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#9AA0A6]">{t('carDetails.minAge')}</p>
-                    <p className="text-white font-semibold">{car.minimum_age}+</p>
+                    <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{t('carDetails.doors')}</p>
+                    <p className="text-white font-semibold text-sm xs:text-base">{car.doors}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 xs:gap-3 text-[#9AA0A6]">
+                  <div className="w-9 xs:w-10 h-9 xs:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                    <Gauge className="w-4 xs:w-5 h-4 xs:h-5 text-[#D4AF37]" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{t('carDetails.luggage')}</p>
+                    <p className="text-white font-semibold text-sm xs:text-base">{car.luggage} {t('carDetails.bags')}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 xs:gap-3 text-[#9AA0A6]">
+                  <div className="w-9 xs:w-10 h-9 xs:h-10 rounded-lg bg-[#D4AF37]/10 flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-4 xs:w-5 h-4 xs:h-5 text-[#D4AF37]" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{t('carDetails.minAge')}</p>
+                    <p className="text-white font-semibold text-sm xs:text-base">{car.minimum_age}+</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-6 p-4 rounded-lg bg-[#D4AF37]/10 border border-[#D4AF37]/20">
-                <p className="text-white font-semibold mb-2">{t('carDetails.airConditioning')}</p>
-                <p className="text-[#9AA0A6] text-sm">{car.air_conditioning}</p>
+              <div className="mb-4 xs:mb-6 p-3 xs:p-4 rounded-lg bg-[#D4AF37]/10 border border-[#D4AF37]/20">
+                <p className="text-white font-semibold mb-1 xs:mb-2 text-sm xs:text-base">{t('carDetails.airConditioning')}</p>
+                <p className="text-[#9AA0A6] text-xs xs:text-sm">{car.air_conditioning}</p>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 hidden lg:block">
             <div className="card-luxury p-6 sm:p-8 sticky top-24 space-y-6">
               <div className="pb-6 border-b border-[#D4AF37]/20">
                 <p className="text-xs text-[#9AA0A6] mb-2 uppercase tracking-wide">{t('carDetails.pricePerDay')}</p>
-                <p className="text-5xl font-bold text-gradient">€{car.price_per_day}</p>
+                <p className="text-5xl font-bold text-gradient">EUR{car.price_per_day}</p>
               </div>
 
               <div className="space-y-4">
@@ -290,7 +290,7 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
                       value={pickupDate}
                       onChange={(e) => setPickupDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
+                      className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[50px]"
                     />
                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4AF37] pointer-events-none" />
                   </div>
@@ -306,7 +306,7 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
                       value={dropoffDate}
                       onChange={(e) => setDropoffDate(e.target.value)}
                       min={pickupDate || new Date().toISOString().split('T')[0]}
-                      className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
+                      className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[50px]"
                     />
                     <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4AF37] pointer-events-none" />
                   </div>
@@ -322,12 +322,12 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[#9AA0A6] text-sm">{t('carDetails.pricePerDay')}</span>
-                      <span className="text-white font-semibold">€{car.price_per_day}</span>
+                      <span className="text-white font-semibold">EUR{car.price_per_day}</span>
                     </div>
                     <div className="pt-4 mt-4 border-t border-[#D4AF37]/30 flex justify-between items-center">
                       <span className="text-white font-bold text-lg">{t('carDetails.rentalCost') || 'Rental Cost'}</span>
                       <span className="text-3xl font-bold text-gradient">
-                        €{totalPrice}
+                        EUR{totalPrice}
                       </span>
                     </div>
                   </div>
@@ -345,6 +345,64 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
                 }
               </button>
             </div>
+          </div>
+
+          <div className="lg:hidden card-luxury p-4 xs:p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-[10px] xs:text-xs text-[#9AA0A6] uppercase tracking-wide">{t('carDetails.pricePerDay')}</p>
+                <p className="text-3xl xs:text-4xl font-bold text-gradient">EUR{car.price_per_day}</p>
+              </div>
+              {calculateDays() > 0 && (
+                <div className="text-right">
+                  <p className="text-[10px] xs:text-xs text-[#9AA0A6]">{calculateDays()} {calculateDays() === 1 ? 'day' : 'days'}</p>
+                  <p className="text-xl xs:text-2xl font-bold text-white">EUR{totalPrice}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-[#9AA0A6] text-[10px] xs:text-xs font-medium mb-1.5 uppercase tracking-wider">
+                  {t('carDetails.pickupDate')}
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={pickupDate}
+                    onChange={(e) => setPickupDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-3 py-2.5 xs:py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm min-h-[48px] touch-manipulation"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[#9AA0A6] text-[10px] xs:text-xs font-medium mb-1.5 uppercase tracking-wider">
+                  {t('carDetails.dropoffDate')}
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={dropoffDate}
+                    onChange={(e) => setDropoffDate(e.target.value)}
+                    min={pickupDate || new Date().toISOString().split('T')[0]}
+                    className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-3 py-2.5 xs:py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all text-sm min-h-[48px] touch-manipulation"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={handleBooking}
+              disabled={!pickupDate || !dropoffDate || checkingAvailability}
+              className="w-full btn-primary py-3.5 xs:py-4 text-sm xs:text-base font-semibold uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed transition-all min-h-[52px] touch-manipulation active:scale-[0.98]"
+            >
+              {checkingAvailability
+                ? (t('availability.checking') || 'Checking...')
+                : t('carDetails.reserveNow')
+              }
+            </button>
           </div>
         </div>
       </div>

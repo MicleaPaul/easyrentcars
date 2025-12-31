@@ -5,27 +5,49 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply bg-[#0B0C0F] text-[#F5F7FA] font-sans antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  html {
-    scroll-behavior: smooth;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    overscroll-behavior-y: contain;
   }
 
   h1 {
-    font-size: clamp(32px, 6vw, 72px);
+    font-size: clamp(28px, 8vw, 72px);
     line-height: 1.1;
   }
 
   h2 {
-    font-size: clamp(24px, 4vw, 48px);
+    font-size: clamp(22px, 6vw, 48px);
     line-height: 1.2;
   }
 
+  h3 {
+    font-size: clamp(18px, 4vw, 32px);
+    line-height: 1.3;
+  }
+
   p, span, div {
-    font-size: clamp(14px, 1.6vw, 18px);
+    font-size: clamp(14px, 2vw, 18px);
+  }
+
+  input, select, textarea, button {
+    font-size: 16px;
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    min-height: 48px;
   }
 }
 
@@ -97,6 +119,37 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  .mobile-card {
+    @apply rounded-xl xs:rounded-[14px];
+  }
+
+  .mobile-padding {
+    @apply px-4 xs:px-5 sm:px-6 lg:px-8;
+  }
+
+  .mobile-safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mobile-sticky-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 40;
+  }
+
+  @media (max-width: 374px) {
+    .text-gradient {
+      font-size: 0.9em;
     }
   }
 }

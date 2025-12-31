@@ -79,74 +79,74 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-16 sm:py-20 lg:py-32 bg-gradient-to-b from-[#111316] to-[#0B0C0F]">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="font-bold text-white mb-6">
+    <section id="contact" className="py-12 xs:py-16 sm:py-20 lg:py-32 bg-gradient-to-b from-[#111316] to-[#0B0C0F]">
+      <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
+        <div className="text-center mb-8 xs:mb-10 sm:mb-16">
+          <h2 className="font-bold text-white mb-4 xs:mb-6">
             {t('contact.title')}
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37] mx-auto mb-8" />
-          <p className="text-[#9AA0A6] max-w-2xl mx-auto">
+          <div className="w-16 xs:w-20 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37] mx-auto mb-6 xs:mb-8" />
+          <p className="text-[#9AA0A6] max-w-2xl mx-auto text-sm xs:text-base px-2">
             {t('contact.subtitle')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="space-y-6">
-            <div className="card-luxury p-6 sm:p-8">
-              <h3 className="text-2xl font-bold text-white mb-6">{t('contact.info')}</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 xs:gap-6 lg:gap-12">
+          <div className="space-y-4 xs:space-y-6">
+            <div className="card-luxury p-4 xs:p-5 sm:p-8">
+              <h3 className="text-xl xs:text-2xl font-bold text-white mb-4 xs:mb-6">{t('contact.info')}</h3>
 
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-black" />
+              <div className="space-y-4 xs:space-y-6">
+                <div className="flex items-start gap-3 xs:gap-4">
+                  <div className="w-10 xs:w-12 h-10 xs:h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 xs:w-6 h-5 xs:h-6 text-black" />
                   </div>
-                  <div>
-                    <p className="text-white font-semibold mb-1">{t('contact.address')}</p>
-                    <p className="text-[#9AA0A6] text-sm">
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold mb-0.5 xs:mb-1 text-sm xs:text-base">{t('contact.address')}</p>
+                    <p className="text-[#9AA0A6] text-xs xs:text-sm">
                       {t('contact.addressLine1')}<br />
                       {t('contact.addressLine2')}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-black" />
+                <a
+                  href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
+                  className="flex items-start gap-3 xs:gap-4 p-2 -m-2 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
+                >
+                  <div className="w-10 xs:w-12 h-10 xs:h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 xs:w-6 h-5 xs:h-6 text-black" />
                   </div>
-                  <div>
-                    <p className="text-white font-semibold mb-1">{t('contact.phone')}</p>
-                    <a
-                      href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
-                      className="text-[#9AA0A6] hover:text-[#D4AF37] transition-colors text-sm"
-                    >
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold mb-0.5 xs:mb-1 text-sm xs:text-base">{t('contact.phone')}</p>
+                    <p className="text-[#9AA0A6] hover:text-[#D4AF37] transition-colors text-xs xs:text-sm">
                       {contactInfo.phone}
-                    </a>
+                    </p>
                   </div>
-                </div>
+                </a>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-black" />
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className="flex items-start gap-3 xs:gap-4 p-2 -m-2 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
+                >
+                  <div className="w-10 xs:w-12 h-10 xs:h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 xs:w-6 h-5 xs:h-6 text-black" />
                   </div>
-                  <div>
-                    <p className="text-white font-semibold mb-1">{t('contact.email')}</p>
-                    <a
-                      href={`mailto:${contactInfo.email}`}
-                      className="text-[#9AA0A6] hover:text-[#D4AF37] transition-colors text-sm"
-                    >
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold mb-0.5 xs:mb-1 text-sm xs:text-base">{t('contact.email')}</p>
+                    <p className="text-[#9AA0A6] hover:text-[#D4AF37] transition-colors text-xs xs:text-sm break-all">
                       {contactInfo.email}
-                    </a>
+                    </p>
                   </div>
-                </div>
+                </a>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-6 h-6 text-black" />
+                <div className="flex items-start gap-3 xs:gap-4">
+                  <div className="w-10 xs:w-12 h-10 xs:h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#F4D03F] flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 xs:w-6 h-5 xs:h-6 text-black" />
                   </div>
-                  <div>
-                    <p className="text-white font-semibold mb-1">{t('contact.hours')}</p>
-                    <p className="text-[#9AA0A6] text-sm">
+                  <div className="min-w-0">
+                    <p className="text-white font-semibold mb-0.5 xs:mb-1 text-sm xs:text-base">{t('contact.hours')}</p>
+                    <p className="text-[#9AA0A6] text-xs xs:text-sm">
                       Mon-Fri: {formatTime(businessHours.weekday.opens)} - {formatTime(businessHours.weekday.closes)}<br />
                       Sat-Sun: {formatTime(businessHours.weekend.opens)} - {formatTime(businessHours.weekend.closes)}
                     </p>
@@ -156,12 +156,12 @@ export function ContactSection() {
             </div>
           </div>
 
-          <div className="card-luxury p-6 sm:p-8">
-            <h3 className="text-2xl font-bold text-white mb-6">{t('contact.sendMessage')}</h3>
+          <div className="card-luxury p-4 xs:p-5 sm:p-8">
+            <h3 className="text-xl xs:text-2xl font-bold text-white mb-4 xs:mb-6">{t('contact.sendMessage')}</h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 xs:space-y-4">
               <div>
-                <label className="block text-[#9AA0A6] text-sm font-medium mb-2">
+                <label className="block text-[#9AA0A6] text-xs xs:text-sm font-medium mb-1.5 xs:mb-2">
                   {t('contact.yourName')} *
                 </label>
                 <input
@@ -169,13 +169,13 @@ export function ContactSection() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
+                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-3 xs:px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[48px] touch-manipulation"
                   placeholder={t('contact.namePlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-[#9AA0A6] text-sm font-medium mb-2">
+                <label className="block text-[#9AA0A6] text-xs xs:text-sm font-medium mb-1.5 xs:mb-2">
                   {t('contact.yourEmail')} *
                 </label>
                 <input
@@ -183,34 +183,34 @@ export function ContactSection() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
+                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-3 xs:px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[48px] touch-manipulation"
                   placeholder={t('contact.emailPlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-[#9AA0A6] text-sm font-medium mb-2">
+                <label className="block text-[#9AA0A6] text-xs xs:text-sm font-medium mb-1.5 xs:mb-2">
                   {t('contact.yourPhone')}
                 </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
+                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-3 xs:px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all min-h-[48px] touch-manipulation"
                   placeholder={t('contact.phonePlaceholder')}
                 />
               </div>
 
               <div>
-                <label className="block text-[#9AA0A6] text-sm font-medium mb-2">
+                <label className="block text-[#9AA0A6] text-xs xs:text-sm font-medium mb-1.5 xs:mb-2">
                   {t('contact.yourMessage')} *
                 </label>
                 <textarea
                   required
-                  rows={5}
+                  rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all resize-none"
+                  className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-3 xs:px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all resize-none min-h-[120px] touch-manipulation"
                   placeholder={t('contact.messagePlaceholder')}
                 />
               </div>
@@ -218,16 +218,16 @@ export function ContactSection() {
               <button
                 type="submit"
                 disabled={sending}
-                className="w-full btn-primary py-4 text-base uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-primary py-3.5 xs:py-4 text-sm xs:text-base uppercase tracking-wide flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] touch-manipulation active:scale-[0.98] transition-transform"
               >
                 {sending ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 xs:w-5 h-4 xs:h-5 animate-spin" />
                     {t('contact.sending')}
                   </>
                 ) : (
                   <>
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 xs:w-5 h-4 xs:h-5" />
                     {t('contact.send')}
                   </>
                 )}

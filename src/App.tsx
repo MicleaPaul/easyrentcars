@@ -75,12 +75,12 @@ function AppContent() {
       <SkipToContent />
       <StructuredData />
       {!isAdminPage && (
-        <header className="fixed top-0 w-full z-50 bg-[#0B0C0F]/95 backdrop-blur-xl border-b border-[#D4AF37]/10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-1 sm:py-1.5 flex items-center justify-between max-w-[1440px]">
-            <button onClick={() => navigate('/')} className="flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 focus:ring-offset-[#0B0C0F] rounded-sm" aria-label="EasyRentCars home">
+        <header className="fixed top-0 w-full z-50 bg-[#0B0C0F]/95 backdrop-blur-xl border-b border-[#D4AF37]/10" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="container mx-auto px-3 xs:px-4 sm:px-6 lg:px-12 py-2 xs:py-2.5 sm:py-3 flex items-center justify-between max-w-[1440px]">
+            <button onClick={() => navigate('/')} className="flex items-center px-1 xs:px-2 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 focus:ring-offset-[#0B0C0F] rounded-sm touch-manipulation min-h-touch" aria-label="EasyRentCars home">
               <Logo
                 variant="header"
-                className="hover:opacity-90 transition-opacity"
+                className="hover:opacity-90 transition-opacity max-w-[140px] xs:max-w-[160px] sm:max-w-none"
                 alt="EasyRentCars Logo"
               />
             </button>
@@ -103,11 +103,11 @@ function AppContent() {
               </button>
             </nav>
 
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 xs:gap-3 sm:gap-4">
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as any)}
-                className="bg-[#111316] text-white px-2 sm:px-4 py-2 rounded-lg border border-[#D4AF37]/20 focus:outline-none focus:border-[#D4AF37] font-medium text-xs sm:text-sm"
+                className="bg-[#111316] text-white px-2 xs:px-3 sm:px-4 py-2 xs:py-2.5 rounded-lg border border-[#D4AF37]/20 focus:outline-none focus:border-[#D4AF37] font-medium text-xs sm:text-sm min-h-touch touch-manipulation"
               >
                 <option value="de">DE</option>
                 <option value="en">EN</option>
@@ -118,13 +118,14 @@ function AppContent() {
               </select>
               <button
                 onClick={() => handleScrollToSection('search')}
-                className="hidden md:block btn-primary px-6 py-2.5 text-sm uppercase tracking-wide"
+                className="hidden md:block btn-primary px-6 py-2.5 text-sm uppercase tracking-wide min-h-touch"
               >
                 {t('hero.cta')}
               </button>
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-[#111316] border border-[#D4AF37]/20 hover:bg-[#D4AF37] hover:text-black transition-all"
+                className="lg:hidden min-w-touch min-h-touch w-11 h-11 flex items-center justify-center rounded-lg bg-[#111316] border border-[#D4AF37]/20 hover:bg-[#D4AF37] hover:text-black transition-all active:scale-95 touch-manipulation"
+                aria-label="Open menu"
               >
                 <Menu className="w-5 h-5" />
               </button>

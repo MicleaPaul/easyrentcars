@@ -56,46 +56,54 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 touch-manipulation"
         onClick={onClose}
+        role="button"
+        aria-label="Close menu"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Escape' && onClose()}
       />
 
-      <div className="fixed top-0 right-0 h-full w-[280px] bg-[#0B0C0F] border-l border-[#D4AF37]/20 z-50 transform transition-transform duration-300">
-        <div className="flex flex-col p-6 border-b border-[#D4AF37]/20">
+      <div
+        className="fixed top-0 right-0 h-full w-[min(300px,85vw)] bg-[#0B0C0F] border-l border-[#D4AF37]/20 z-50 transform transition-transform duration-300 overflow-y-auto"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        <div className="flex flex-col p-4 xs:p-6 border-b border-[#D4AF37]/20">
           <div className="flex items-center justify-between mb-4">
-            <Logo variant="header" className="px-1" alt="EasyRentCars Logo" />
+            <Logo variant="header" className="px-1 max-w-[130px] xs:max-w-[150px]" alt="EasyRentCars Logo" />
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[#111316] transition-colors"
+              className="min-w-touch min-h-touch w-11 h-11 flex items-center justify-center rounded-lg hover:bg-[#111316] active:bg-[#1a1c20] transition-colors touch-manipulation"
+              aria-label="Close menu"
             >
               <X className="w-6 h-6 text-white" />
             </button>
           </div>
-          <h2 className="text-lg font-bold text-white uppercase tracking-wide">{t('menu.title')}</h2>
+          <h2 className="text-base xs:text-lg font-bold text-white uppercase tracking-wide">{t('menu.title')}</h2>
         </div>
 
-        <nav className="p-6 space-y-4">
+        <nav className="p-4 xs:p-6 space-y-2">
           <button
             onClick={handleHome}
-            className="block w-full text-left text-white hover:text-[#D4AF37] transition-colors font-medium text-lg uppercase tracking-wide py-3 border-b border-[#D4AF37]/10"
+            className="block w-full text-left text-white hover:text-[#D4AF37] active:text-[#D4AF37] transition-colors font-medium text-base xs:text-lg uppercase tracking-wide py-4 border-b border-[#D4AF37]/10 min-h-touch touch-manipulation"
           >
             {t('nav.home')}
           </button>
           <button
             onClick={() => handleScrollToSection('fleet')}
-            className="block w-full text-left text-white hover:text-[#D4AF37] transition-colors font-medium text-lg uppercase tracking-wide py-3 border-b border-[#D4AF37]/10"
+            className="block w-full text-left text-white hover:text-[#D4AF37] active:text-[#D4AF37] transition-colors font-medium text-base xs:text-lg uppercase tracking-wide py-4 border-b border-[#D4AF37]/10 min-h-touch touch-manipulation"
           >
             {t('nav.fleet')}
           </button>
           <button
             onClick={() => handleScrollToSection('faq')}
-            className="block w-full text-left text-white hover:text-[#D4AF37] transition-colors font-medium text-lg uppercase tracking-wide py-3 border-b border-[#D4AF37]/10"
+            className="block w-full text-left text-white hover:text-[#D4AF37] active:text-[#D4AF37] transition-colors font-medium text-base xs:text-lg uppercase tracking-wide py-4 border-b border-[#D4AF37]/10 min-h-touch touch-manipulation"
           >
             {t('nav.faq')}
           </button>
           <button
             onClick={() => handleScrollToSection('contact')}
-            className="block w-full text-left text-white hover:text-[#D4AF37] transition-colors font-medium text-lg uppercase tracking-wide py-3 border-b border-[#D4AF37]/10"
+            className="block w-full text-left text-white hover:text-[#D4AF37] active:text-[#D4AF37] transition-colors font-medium text-base xs:text-lg uppercase tracking-wide py-4 border-b border-[#D4AF37]/10 min-h-touch touch-manipulation"
           >
             {t('nav.contact')}
           </button>
@@ -104,14 +112,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               onClose();
               navigate('/agb');
             }}
-            className="block w-full text-left text-white hover:text-[#D4AF37] transition-colors font-medium text-lg uppercase tracking-wide py-3 border-b border-[#D4AF37]/10"
+            className="block w-full text-left text-white hover:text-[#D4AF37] active:text-[#D4AF37] transition-colors font-medium text-base xs:text-lg uppercase tracking-wide py-4 border-b border-[#D4AF37]/10 min-h-touch touch-manipulation"
           >
             {t('nav.agb')}
           </button>
 
           <button
             onClick={() => handleScrollToSection('search')}
-            className="w-full mt-6 btn-primary px-6 py-4 uppercase"
+            className="w-full mt-6 btn-primary px-6 py-4 uppercase text-base font-bold min-h-[52px] touch-manipulation active:scale-[0.98] transition-transform"
           >
             {t('hero.cta')}
           </button>
