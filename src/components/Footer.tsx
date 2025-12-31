@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -7,22 +6,11 @@ import { Logo } from './Logo';
 export function Footer() {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-  };
 
   return (
     <footer className="bg-black border-t border-[#F6C90E]/20">
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 mb-8 sm:mb-12">
           <div>
             <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <Logo variant="footer" className="px-1" alt="EasyRentCars Logo" />
@@ -90,52 +78,6 @@ export function Footer() {
                 )
               )}
             </ul>
-          </div>
-
-          <div className="md:col-span-2 lg:col-span-1">
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6 uppercase tracking-wide">
-              {t('footer.sendMessage')}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-              <input
-                type="text"
-                placeholder={t('footer.yourName')}
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-[#1A1A1A] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-[#F6C90E]/20 focus:border-[#F6C90E] focus:outline-none placeholder:text-[#B8B9BB] text-sm sm:text-base"
-                required
-              />
-              <input
-                type="email"
-                placeholder={t('footer.yourEmail')}
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-[#1A1A1A] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-[#F6C90E]/20 focus:border-[#F6C90E] focus:outline-none placeholder:text-[#B8B9BB] text-sm sm:text-base"
-                required
-              />
-              <input
-                type="tel"
-                placeholder={t('footer.yourPhone')}
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full bg-[#1A1A1A] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-[#F6C90E]/20 focus:border-[#F6C90E] focus:outline-none placeholder:text-[#B8B9BB] text-sm sm:text-base"
-                required
-              />
-              <textarea
-                placeholder={t('footer.yourMessage')}
-                rows={4}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full bg-[#1A1A1A] text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-[#F6C90E]/20 focus:border-[#F6C90E] focus:outline-none placeholder:text-[#B8B9BB] resize-none text-sm sm:text-base"
-                required
-              />
-              <button
-                type="submit"
-                className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#F6C90E] to-[#C9A227] text-black font-bold rounded-lg hover:shadow-xl hover:shadow-[#F6C90E]/40 transition-all uppercase text-sm sm:text-base"
-              >
-                {t('footer.send')}
-              </button>
-            </form>
           </div>
         </div>
 
