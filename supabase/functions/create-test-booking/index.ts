@@ -189,8 +189,12 @@ Deno.serve(async (req: Request) => {
       ============================================
     `);
 
+    let emailSent = false;
+    let emailError = null;
+
     try {
-      await fetch(
+      console.log('Sending booking confirmation email...');
+      const emailResponse = await fetch(
         `${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-confirmation`,
         {
           method: 'POST',
@@ -201,8 +205,26 @@ Deno.serve(async (req: Request) => {
           body: JSON.stringify({ booking_id: newBooking.id }),
         }
       );
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
+
+      if (emailResponse.ok) {
+        const emailResult = await emailResponse.json();
+        emailSent = emailResult.email_sent || false;
+        console.log('Email confirmation response:', emailResult);
+
+        if (emailSent) {
+          console.log(`✓ Booking confirmation emails sent to ${bookingData.customer_email} and business email`);
+        } else {
+          console.warn('⚠ Email prepared but not sent (check RESEND_API_KEY configuration)');
+          emailError = 'RESEND_API_KEY not configured';
+        }
+      } else {
+        const errorData = await emailResponse.json();
+        console.error('Email API returned error:', errorData);
+        emailError = errorData.error || 'Email service error';
+      }
+    } catch (error) {
+      console.error('Failed to send confirmation email:', error);
+      emailError = error instanceof Error ? error.message : 'Unknown email error';
     }
 
     return new Response(
@@ -210,6 +232,8 @@ Deno.serve(async (req: Request) => {
         success: true,
         booking_id: newBooking.id,
         message: 'Test booking created successfully',
+        email_sent: emailSent,
+        email_error: emailError,
       }),
       {
         headers: {

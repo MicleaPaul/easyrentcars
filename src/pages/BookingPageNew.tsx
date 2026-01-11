@@ -242,7 +242,13 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
           throw new Error(error.error || 'Failed to create test booking');
         }
 
-        const { booking_id } = await response.json();
+        const { booking_id, email_sent, email_error } = await response.json();
+
+        if (email_sent) {
+          console.log('✓ Confirmation emails sent successfully to customer and business');
+        } else {
+          console.warn('⚠ Booking created but emails not sent:', email_error);
+        }
 
         setSuccessModalData({
           bookingId: booking_id,
