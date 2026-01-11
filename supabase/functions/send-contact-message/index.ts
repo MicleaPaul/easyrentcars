@@ -2,6 +2,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import nodemailer from 'npm:nodemailer@6.9.16';
 
 const ALLOWED_ORIGINS = [
+  'https://easyrentgraz.rentals',
   'https://easyrentcars.rentals',
   'http://localhost:5173',
   'http://localhost:3000',
