@@ -21,7 +21,7 @@ export async function checkVehicleAvailability(
       .eq('vehicle_id', vehicleId)
       .lt('pickup_date', returnISO)
       .gt('return_date', pickupISO)
-      .in('booking_status', ['confirmed', 'Confirmed', 'active', 'pending', 'PendingPayment']);
+      .in('booking_status', ['Confirmed', 'confirmed', 'Active', 'active']);
 
     if (bookingsError) {
       throw bookingsError;

@@ -27,6 +27,39 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   apiVersion: '2024-11-20.acacia',
 });
 
+interface BookingData {
+  vehicle_id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  customer_age: number;
+  pickup_date: string;
+  return_date: string;
+  pickup_time: string;
+  return_time: string;
+  pickup_location: string;
+  return_location: string;
+  pickup_location_address: string | null;
+  return_location_address: string | null;
+  pickup_fee: number;
+  return_fee: number;
+  unlimited_kilometers: boolean;
+  contract_number: string | null;
+  notes: string | null;
+  language: string;
+  guest_link_token: string;
+  payment_method: 'stripe' | 'cash';
+  rental_days: number;
+  rental_cost: number;
+  cleaning_fee: number;
+  location_fees: number;
+  unlimited_km_fee: number;
+  after_hours_fee: number;
+  total_amount: number;
+  success_url: string;
+  cancel_url: string;
+}
+
 Deno.serve(async (req: Request) => {
   const corsHeaders = getCorsHeaders(req);
 
@@ -38,45 +71,42 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const {
-      booking_id,
-      customer_email,
-      customer_name,
-      vehicle_brand,
-      vehicle_model,
-      rental_days,
-      price_per_day,
-      cleaning_fee,
-      location_fees,
-      unlimited_km_fee,
-      after_hours_fee,
-      total_amount,
-      payment_method,
-      success_url,
-      cancel_url,
-    } = await req.json();
+    const bookingData: BookingData = await req.json();
 
-    const { data: existingBookings, error: conflictError } = await supabase
-      .from('bookings')
-      .select('id, pickup_date, return_date')
-      .eq('id', booking_id)
+    const { data: vehicle, error: vehicleError } = await supabase
+      .from('vehicles')
+      .select('id, brand, model, price_per_day, minimum_age')
+      .eq('id', bookingData.vehicle_id)
       .single();
 
-    if (conflictError) {
-      console.error('Error fetching booking:', conflictError);
-      throw new Error('Booking not found');
+    if (vehicleError || !vehicle) {
+      throw new Error('Vehicle not found');
     }
+
+    const pickupISO = `${bookingData.pickup_date}T00:00:00Z`;
+    const returnISO = `${bookingData.return_date}T23:59:59Z`;
 
     const { data: conflictingBookings } = await supabase
       .from('bookings')
       .select('id')
-      .neq('id', booking_id)
-      .eq('vehicle_id', existingBookings.vehicle_id)
+      .eq('vehicle_id', bookingData.vehicle_id)
       .in('booking_status', ['Confirmed', 'Active', 'confirmed', 'active'])
-      .or(`pickup_date.lt.${existingBookings.return_date},return_date.gt.${existingBookings.pickup_date}`);
+      .lt('pickup_date', returnISO)
+      .gt('return_date', pickupISO);
 
     if (conflictingBookings && conflictingBookings.length > 0) {
       throw new Error('Vehicle is no longer available for the selected dates');
+    }
+
+    const { data: blocks } = await supabase
+      .from('vehicle_blocks')
+      .select('id')
+      .eq('vehicle_id', bookingData.vehicle_id)
+      .lt('blocked_from', returnISO)
+      .gt('blocked_until', pickupISO);
+
+    if (blocks && blocks.length > 0) {
+      throw new Error('Vehicle is blocked for the selected dates');
     }
 
     const { data: pricingSettings } = await supabase
@@ -88,26 +118,21 @@ Deno.serve(async (req: Request) => {
     const dbUnlimitedKmFeePerDay = pricingSettings?.find(s => s.key === 'unlimited_km_fee')?.value?.amount_per_day || 15;
 
     const serverCleaningFee = dbCleaningFee;
-    const serverUnlimitedKmFee = unlimited_km_fee > 0 ? dbUnlimitedKmFeePerDay * rental_days : 0;
+    const serverUnlimitedKmFee = bookingData.unlimited_kilometers ? dbUnlimitedKmFeePerDay * bookingData.rental_days : 0;
 
-    if (Math.abs(cleaning_fee - serverCleaningFee) > 0.01) {
-      console.warn(`Warning: Cleaning fee mismatch: Frontend sent ${cleaning_fee}, using server value ${serverCleaningFee}`);
+    const serverTotal = (bookingData.rental_days * vehicle.price_per_day) +
+      serverCleaningFee +
+      bookingData.location_fees +
+      bookingData.after_hours_fee +
+      serverUnlimitedKmFee;
+
+    if (Math.abs(bookingData.total_amount - serverTotal) > 1) {
+      console.warn(`Total mismatch: client ${bookingData.total_amount}, server ${serverTotal}`);
     }
 
-    if (Math.abs(unlimited_km_fee - serverUnlimitedKmFee) > 0.01) {
-      console.warn(`Warning: Unlimited KM fee mismatch: Frontend sent ${unlimited_km_fee}, using server value ${serverUnlimitedKmFee}`);
-    }
-
-    const actualCleaningFee = serverCleaningFee;
-    const actualUnlimitedKmFee = serverUnlimitedKmFee;
-    const serverTotal = (rental_days * price_per_day) + actualCleaningFee + location_fees + after_hours_fee + actualUnlimitedKmFee;
-
-    if (Math.abs(total_amount - serverTotal) > 0.01) {
-      console.warn(`Warning: Total amount mismatch: Frontend sent ${total_amount}, server calculated ${serverTotal}`);
-    }
-
-    const isCashPayment = payment_method === 'cash';
-    const depositAmount = isCashPayment ? price_per_day : serverTotal;
+    const isCashPayment = bookingData.payment_method === 'cash';
+    const depositAmount = isCashPayment ? vehicle.price_per_day : serverTotal;
+    const remainingAmount = serverTotal - depositAmount;
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
@@ -116,8 +141,8 @@ Deno.serve(async (req: Request) => {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `Deposit - ${vehicle_brand} ${vehicle_model}`,
-            description: `1 day rental deposit (remaining EUR${(serverTotal - depositAmount).toFixed(2)} due at pickup)`,
+            name: `Deposit - ${vehicle.brand} ${vehicle.model}`,
+            description: `1 day rental deposit (remaining EUR${remainingAmount.toFixed(2)} due at pickup)`,
           },
           unit_amount: Math.round(depositAmount * 100),
         },
@@ -128,15 +153,15 @@ Deno.serve(async (req: Request) => {
         price_data: {
           currency: 'eur',
           product_data: {
-            name: `${vehicle_brand} ${vehicle_model}`,
-            description: `${rental_days} ${rental_days === 1 ? 'Tag' : 'Tage'} Miete`,
+            name: `${vehicle.brand} ${vehicle.model}`,
+            description: `${bookingData.rental_days} ${bookingData.rental_days === 1 ? 'Tag' : 'Tage'} Miete`,
           },
-          unit_amount: Math.round(price_per_day * 100),
+          unit_amount: Math.round(vehicle.price_per_day * 100),
         },
-        quantity: rental_days,
+        quantity: bookingData.rental_days,
       });
 
-      if (actualCleaningFee > 0) {
+      if (serverCleaningFee > 0) {
         lineItems.push({
           price_data: {
             currency: 'eur',
@@ -144,13 +169,13 @@ Deno.serve(async (req: Request) => {
               name: 'Cleaning Fee',
               description: 'One-time cleaning fee',
             },
-            unit_amount: Math.round(actualCleaningFee * 100),
+            unit_amount: Math.round(serverCleaningFee * 100),
           },
           quantity: 1,
         });
       }
 
-      if (location_fees > 0) {
+      if (bookingData.location_fees > 0) {
         lineItems.push({
           price_data: {
             currency: 'eur',
@@ -158,27 +183,27 @@ Deno.serve(async (req: Request) => {
               name: 'Location Fees',
               description: 'Pickup and Return Fees',
             },
-            unit_amount: Math.round(location_fees * 100),
+            unit_amount: Math.round(bookingData.location_fees * 100),
           },
           quantity: 1,
         });
       }
 
-      if (actualUnlimitedKmFee > 0) {
+      if (serverUnlimitedKmFee > 0) {
         lineItems.push({
           price_data: {
             currency: 'eur',
             product_data: {
               name: 'Unlimited Kilometers',
-              description: `${rental_days} ${rental_days === 1 ? 'Day' : 'Days'} Unlimited KM`,
+              description: `${bookingData.rental_days} ${bookingData.rental_days === 1 ? 'Day' : 'Days'} Unlimited KM`,
             },
-            unit_amount: Math.round((actualUnlimitedKmFee / rental_days) * 100),
+            unit_amount: Math.round((serverUnlimitedKmFee / bookingData.rental_days) * 100),
           },
-          quantity: rental_days,
+          quantity: bookingData.rental_days,
         });
       }
 
-      if (after_hours_fee > 0) {
+      if (bookingData.after_hours_fee > 0) {
         lineItems.push({
           price_data: {
             currency: 'eur',
@@ -186,40 +211,59 @@ Deno.serve(async (req: Request) => {
               name: 'After Hours Service',
               description: 'Service outside regular business hours',
             },
-            unit_amount: Math.round(after_hours_fee * 100),
+            unit_amount: Math.round(bookingData.after_hours_fee * 100),
           },
           quantity: 1,
         });
       }
     }
 
+    const bookingMetadata = {
+      vehicle_id: bookingData.vehicle_id,
+      vehicle_brand: vehicle.brand,
+      vehicle_model: vehicle.model,
+      customer_name: bookingData.customer_name,
+      customer_email: bookingData.customer_email,
+      customer_phone: bookingData.customer_phone,
+      customer_age: String(bookingData.customer_age),
+      pickup_date: bookingData.pickup_date,
+      return_date: bookingData.return_date,
+      pickup_time: bookingData.pickup_time,
+      return_time: bookingData.return_time,
+      pickup_location: bookingData.pickup_location,
+      return_location: bookingData.return_location,
+      pickup_location_address: bookingData.pickup_location_address || '',
+      return_location_address: bookingData.return_location_address || '',
+      pickup_fee: String(bookingData.pickup_fee),
+      return_fee: String(bookingData.return_fee),
+      unlimited_kilometers: String(bookingData.unlimited_kilometers),
+      contract_number: bookingData.contract_number || '',
+      notes: (bookingData.notes || '').substring(0, 400),
+      language: bookingData.language,
+      guest_link_token: bookingData.guest_link_token,
+      payment_method: bookingData.payment_method,
+      payment_type: isCashPayment ? 'deposit' : 'full',
+      rental_days: String(bookingData.rental_days),
+      rental_cost: String(bookingData.rental_days * vehicle.price_per_day),
+      cleaning_fee: String(serverCleaningFee),
+      location_fees: String(bookingData.location_fees),
+      unlimited_km_fee: String(serverUnlimitedKmFee),
+      after_hours_fee: String(bookingData.after_hours_fee),
+      total_amount: String(serverTotal),
+      deposit_amount: String(depositAmount),
+      remaining_amount: String(remainingAmount),
+    };
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: success_url || `${Deno.env.get('SITE_URL')}/booking-success?booking_id=${booking_id}`,
-      cancel_url: cancel_url || `${Deno.env.get('SITE_URL')}/booking/${booking_id}`,
-      customer_email: customer_email,
-      client_reference_id: booking_id,
-      metadata: {
-        booking_id: booking_id,
-        customer_name: customer_name,
-        payment_type: isCashPayment ? 'deposit' : 'full',
-        total_amount: serverTotal.toString(),
-        deposit_amount: depositAmount.toString(),
-        remaining_amount: (serverTotal - depositAmount).toString(),
-      },
+      success_url: `${bookingData.success_url}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: bookingData.cancel_url,
+      customer_email: bookingData.customer_email,
+      metadata: bookingMetadata,
+      expires_at: Math.floor(Date.now() / 1000) + (30 * 60),
     });
-
-    await supabase
-      .from('bookings')
-      .update({
-        stripe_session_id: session.id,
-        stripe_checkout_url: session.url,
-        deposit_amount: isCashPayment ? depositAmount : null,
-        remaining_amount: isCashPayment ? (serverTotal - depositAmount) : null,
-      })
-      .eq('id', booking_id);
 
     return new Response(
       JSON.stringify({
@@ -227,7 +271,7 @@ Deno.serve(async (req: Request) => {
         url: session.url,
         payment_type: isCashPayment ? 'deposit' : 'full',
         amount_to_pay: depositAmount,
-        remaining_due: serverTotal - depositAmount,
+        remaining_due: remainingAmount,
       }),
       {
         headers: {
@@ -238,7 +282,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (error: any) {
     console.error('Error creating checkout session:', error);
-    const safeMessage = error.message?.includes('Vehicle')
+    const safeMessage = error.message?.includes('Vehicle') || error.message?.includes('available')
       ? error.message
       : 'An error occurred while processing your request';
     return new Response(

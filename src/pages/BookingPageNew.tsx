@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Banknote, Shield, CheckCircle, Clock, AlertCircle, Info, Infinity } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBooking } from '../contexts/BookingContext';
@@ -30,6 +30,7 @@ interface BookingPageNewProps {
 
 export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { settings, loading: settingsLoading } = useSiteSettings();
   const {
@@ -93,7 +94,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
 
       if (!error && data?.value?.enabled) {
         setIsTestMode(true);
-        console.warn('⚠️ TEST MODE ACTIVE - Booking will skip payment processing');
+        console.warn('TEST MODE ACTIVE - Booking will skip payment processing');
       }
     } catch (error) {
       console.error('Error checking test mode:', error);
@@ -192,135 +193,89 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
 
       const guestToken = crypto.randomUUID();
 
-      const pickupDateTime = `${pickupDate}T${pickupTime}:00Z`;
-      const returnDateTime = `${returnDate}T${returnTime}:00Z`;
-
-      const testModeNotes = isTestMode
-        ? '[TEST MODE] No payment processed - Created for testing purposes\n\n' + (formData.notes || '')
-        : formData.notes;
-
-      const depositAmount = paymentMethod === 'cash' ? car.price_per_day : 0;
-      const remainingAmount = paymentMethod === 'cash' ? total - depositAmount : 0;
-
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert({
-          vehicle_id: id,
-          customer_name: formData.fullName,
-          customer_email: formData.email,
-          customer_phone: formData.phone,
-          customer_age: parseInt(formData.age),
-          pickup_date: pickupDateTime,
-          return_date: returnDateTime,
-          pickup_location: pickupLocation?.name || 'Unknown',
-          return_location: returnLocation?.name || 'Unknown',
-          pickup_location_address: pickupLocation?.isCustom ? pickupLocation.address : null,
-          return_location_address: returnLocation?.isCustom ? returnLocation.address : null,
-          pickup_fee: pickupLocation?.fee || 0,
-          return_fee: returnLocation?.fee || 0,
-          unlimited_kilometers: unlimitedKilometers,
-          contract_number: contractNumber || null,
-          total_price: total,
-          rental_cost: rentalCost,
-          rental_days: days,
-          unlimited_km_fee: unlimitedKmFee,
-          payment_method: paymentMethod,
-          payment_status: isTestMode ? 'completed' : 'pending',
-          booking_status: isTestMode ? 'Confirmed' : 'PendingPayment',
-          deposit_amount: paymentMethod === 'cash' ? depositAmount : null,
-          remaining_amount: paymentMethod === 'cash' ? remainingAmount : null,
-          is_test_mode: isTestMode,
-          notes: testModeNotes,
-          language: language,
-          guest_link_token: guestToken,
-          after_hours_fee: afterHoursFee,
-          cleaning_fee: cleaningFee,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const sendConfirmationEmail = async (bookingId: string) => {
-        try {
-          await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-booking-confirmation`,
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ booking_id: bookingId }),
-            }
-          );
-        } catch (emailError) {
-          console.error('Failed to send confirmation email:', emailError);
-        }
+      const bookingData = {
+        vehicle_id: id,
+        customer_name: formData.fullName,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        customer_age: parseInt(formData.age),
+        pickup_date: pickupDate,
+        return_date: returnDate,
+        pickup_time: pickupTime,
+        return_time: returnTime,
+        pickup_location: pickupLocation?.name || 'Unknown',
+        return_location: returnLocation?.name || 'Unknown',
+        pickup_location_address: pickupLocation?.isCustom ? pickupLocation.address : null,
+        return_location_address: returnLocation?.isCustom ? returnLocation.address : null,
+        pickup_fee: pickupLocation?.fee || 0,
+        return_fee: returnLocation?.fee || 0,
+        unlimited_kilometers: unlimitedKilometers,
+        contract_number: contractNumber || null,
+        notes: formData.notes || null,
+        language: language,
+        guest_link_token: guestToken,
+        payment_method: paymentMethod,
+        rental_days: days,
+        rental_cost: rentalCost,
+        cleaning_fee: cleaningFee,
+        location_fees: locationFees,
+        unlimited_km_fee: unlimitedKmFee,
+        after_hours_fee: afterHoursFee,
+        total_amount: total,
       };
 
       if (isTestMode) {
-        await sendConfirmationEmail(data.id);
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-test-booking`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookingData),
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to create test booking');
+        }
+
+        const { booking_id } = await response.json();
+
         setSuccessModalData({
-          bookingId: data.id,
+          bookingId: booking_id,
           paymentMethod: 'skipped'
         });
         setShowSuccessModal(true);
         return;
       }
 
-      if (paymentMethod === 'stripe' || paymentMethod === 'cash') {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-booking-checkout`,
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                booking_id: data.id,
-                customer_email: formData.email,
-                customer_name: formData.fullName,
-                vehicle_brand: car.brand,
-                vehicle_model: car.model,
-                rental_days: days,
-                price_per_day: car.price_per_day,
-                cleaning_fee: cleaningFee,
-                location_fees: locationFees,
-                unlimited_km_fee: unlimitedKmFee,
-                after_hours_fee: afterHoursFee,
-                total_amount: total,
-                payment_method: paymentMethod,
-                success_url: `${window.location.origin}/booking-success?booking_id=${data.id}`,
-                cancel_url: `${window.location.origin}/booking/${id}`,
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to create checkout session');
-          }
-
-          const { url } = await response.json();
-
-          await supabase
-            .from('bookings')
-            .update({
-              payment_status: 'pending'
-            })
-            .eq('id', data.id);
-
-          window.location.href = url;
-        } catch (paymentError: any) {
-          console.error('Payment error:', paymentError);
-          setErrorMessage('Booking created but payment setup failed: ' + paymentError.message);
-          setShowErrorModal(true);
-          onComplete();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-booking-checkout`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...bookingData,
+            success_url: `${window.location.origin}/booking-success`,
+            cancel_url: `${window.location.origin}/booking/${id}`,
+          }),
         }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
       }
+
+      const { url } = await response.json();
+
+      window.location.href = url;
     } catch (error: any) {
       console.error('Booking error:', error);
       setErrorMessage('An error occurred while creating your booking: ' + error.message);
@@ -458,10 +413,10 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                         />
                         <div className="flex-1">
                           <label htmlFor="unlimitedKm" className="block text-white font-semibold mb-1 cursor-pointer">
-                            {t('bookingPage.unlimitedKm') || 'Kilomètres Illimités'} (+€{unlimitedKmFee})
+                            {t('bookingPage.unlimitedKm') || 'Unlimited Kilometers'} (+EUR{unlimitedKmFee})
                           </label>
                           <p className="text-sm text-[#9AA0A6]">
-                            {t('bookingPage.unlimitedKmDesc') || 'Upgrade from 200 km/day to unlimited kilometers for only €15/day'}
+                            {t('bookingPage.unlimitedKmDesc') || 'Upgrade from 200 km/day to unlimited kilometers for only EUR15/day'}
                           </p>
                         </div>
                         <button
@@ -481,7 +436,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                                 </p>
                               </div>
                               <p className="text-xs text-[#9AA0A6] leading-relaxed">
-                                {t('bookingPage.unlimitedKmTooltip') || 'Standard package includes 200 km per day. Each extra kilometer costs €0.27. With Unlimited package, drive as much as you want without extra costs!'}
+                                {t('bookingPage.unlimitedKmTooltip') || 'Standard package includes 200 km per day. Each extra kilometer costs EUR0.27. With Unlimited package, drive as much as you want without extra costs!'}
                               </p>
                             </div>
                           )}
@@ -739,7 +694,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                 <div>
                   <p className="text-xs text-[#9AA0A6] mb-1">{t('bookingPage.vehicle')}</p>
                   <p className="text-white font-semibold">{car.brand} {car.model}</p>
-                  <p className="text-xs text-[#9AA0A6] mt-1">{car.year} • {car.transmission} • {car.fuel_type} • {car.seats} seats</p>
+                  <p className="text-xs text-[#9AA0A6] mt-1">{car.year} - {car.transmission} - {car.fuel_type} - {car.seats} seats</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -756,7 +711,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                           <p className="text-xs text-[#F5F7FA] mt-1 italic">{pickupLocation.address}</p>
                         )}
                         {pickupLocation.fee > 0 && (
-                          <p className="text-xs text-[#D4AF37] mt-1">+€{pickupLocation.fee}</p>
+                          <p className="text-xs text-[#D4AF37] mt-1">+EUR{pickupLocation.fee}</p>
                         )}
                       </>
                     )}
@@ -774,7 +729,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                           <p className="text-xs text-[#F5F7FA] mt-1 italic">{returnLocation.address}</p>
                         )}
                         {returnLocation.fee > 0 && (
-                          <p className="text-xs text-[#D4AF37] mt-1">+€{returnLocation.fee}</p>
+                          <p className="text-xs text-[#D4AF37] mt-1">+EUR{returnLocation.fee}</p>
                         )}
                       </>
                     )}
@@ -790,28 +745,28 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#9AA0A6]">{t('bookingPage.rental')} ({days} {days === 1 ? t('bookingPage.day') : t('bookingPage.days')})</span>
-                  <span className="text-white font-semibold">€{rentalCost}</span>
+                  <span className="text-white font-semibold">EUR{rentalCost}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[#9AA0A6]">{t('bookingPage.cleaningFee')}</span>
-                  <span className="text-white font-semibold">€{cleaningFee}</span>
+                  <span className="text-white font-semibold">EUR{cleaningFee}</span>
                 </div>
                 {locationFees > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-[#9AA0A6]">{t('bookingPage.locationFee')}</span>
-                    <span className="text-white font-semibold">€{locationFees}</span>
+                    <span className="text-white font-semibold">EUR{locationFees}</span>
                   </div>
                 )}
                 {afterHoursFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-[#9AA0A6]">{t('bookingPage.afterHoursFee')}</span>
-                    <span className="text-white font-semibold">€{afterHoursFee}</span>
+                    <span className="text-white font-semibold">EUR{afterHoursFee}</span>
                   </div>
                 )}
                 {unlimitedKmFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-[#9AA0A6]">{t('bookingPage.unlimitedKm')}</span>
-                    <span className="text-white font-semibold">€{unlimitedKmFee}</span>
+                    <span className="text-white font-semibold">EUR{unlimitedKmFee}</span>
                   </div>
                 )}
               </div>
@@ -819,7 +774,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
               <div className="pt-4 border-t border-[#D4AF37]/20">
                 <div className="flex justify-between items-center">
                   <span className="text-white font-bold text-lg">{t('bookingPage.total')}</span>
-                  <span className="text-3xl font-bold text-gradient">€{total}</span>
+                  <span className="text-3xl font-bold text-gradient">EUR{total}</span>
                 </div>
               </div>
             </div>

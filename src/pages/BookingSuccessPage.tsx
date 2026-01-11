@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { CheckCircle, Car, Calendar, MapPin, User, Mail, Phone, Download, Home, Clock, CreditCard, Banknote, FileText } from 'lucide-react';
+import { CheckCircle, Car, Calendar, MapPin, User, Mail, Phone, Download, Home, Clock, CreditCard, Banknote, FileText, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -25,6 +25,11 @@ interface BookingDetails {
   cleaning_fee: number;
   unlimited_kilometers: boolean;
   language: string;
+  rental_days?: number;
+  rental_cost?: number;
+  unlimited_km_fee?: number;
+  deposit_amount?: number;
+  remaining_amount?: number;
   vehicle: {
     brand: string;
     model: string;
@@ -42,75 +47,150 @@ export function BookingSuccessPage() {
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   const bookingId = searchParams.get('booking_id');
+  const sessionId = searchParams.get('session_id');
+
+  const fetchBookingBySessionId = useCallback(async (stripeSessionId: string): Promise<BookingDetails | null> => {
+    const { data, error: fetchError } = await supabase
+      .from('bookings')
+      .select(`
+        id,
+        customer_name,
+        customer_email,
+        customer_phone,
+        pickup_date,
+        return_date,
+        pickup_location,
+        return_location,
+        pickup_location_address,
+        return_location_address,
+        pickup_fee,
+        return_fee,
+        total_price,
+        payment_method,
+        payment_status,
+        booking_status,
+        after_hours_fee,
+        cleaning_fee,
+        unlimited_kilometers,
+        language,
+        rental_days,
+        rental_cost,
+        unlimited_km_fee,
+        deposit_amount,
+        remaining_amount,
+        vehicles (
+          brand,
+          model,
+          year,
+          transmission,
+          fuel_type,
+          price_per_day
+        )
+      `)
+      .eq('stripe_session_id', stripeSessionId)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+    if (!data) return null;
+
+    const vehicleData = Array.isArray(data.vehicles) ? data.vehicles[0] : data.vehicles;
+    return { ...data, vehicle: vehicleData };
+  }, []);
+
+  const fetchBookingById = useCallback(async (id: string): Promise<BookingDetails | null> => {
+    const { data, error: fetchError } = await supabase
+      .from('bookings')
+      .select(`
+        id,
+        customer_name,
+        customer_email,
+        customer_phone,
+        pickup_date,
+        return_date,
+        pickup_location,
+        return_location,
+        pickup_location_address,
+        return_location_address,
+        pickup_fee,
+        return_fee,
+        total_price,
+        payment_method,
+        payment_status,
+        booking_status,
+        after_hours_fee,
+        cleaning_fee,
+        unlimited_kilometers,
+        language,
+        rental_days,
+        rental_cost,
+        unlimited_km_fee,
+        deposit_amount,
+        remaining_amount,
+        vehicles (
+          brand,
+          model,
+          year,
+          transmission,
+          fuel_type,
+          price_per_day
+        )
+      `)
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+    if (!data) return null;
+
+    const vehicleData = Array.isArray(data.vehicles) ? data.vehicles[0] : data.vehicles;
+    return { ...data, vehicle: vehicleData };
+  }, []);
 
   useEffect(() => {
-    if (bookingId) {
-      fetchBookingDetails(bookingId);
-    } else {
-      setError('No booking ID provided');
-      setLoading(false);
-    }
-  }, [bookingId]);
+    const loadBooking = async () => {
+      try {
+        let bookingData: BookingDetails | null = null;
 
-  async function fetchBookingDetails(id: string) {
-    try {
-      const { data, error: fetchError } = await supabase
-        .from('bookings')
-        .select(`
-          id,
-          customer_name,
-          customer_email,
-          customer_phone,
-          pickup_date,
-          return_date,
-          pickup_location,
-          return_location,
-          pickup_location_address,
-          return_location_address,
-          pickup_fee,
-          return_fee,
-          total_price,
-          payment_method,
-          payment_status,
-          booking_status,
-          after_hours_fee,
-          cleaning_fee,
-          unlimited_kilometers,
-          language,
-          vehicles (
-            brand,
-            model,
-            year,
-            transmission,
-            fuel_type,
-            price_per_day
-          )
-        `)
-        .eq('id', id)
-        .maybeSingle();
+        if (sessionId) {
+          bookingData = await fetchBookingBySessionId(sessionId);
 
-      if (fetchError) throw fetchError;
+          if (!bookingData && retryCount < 10) {
+            setTimeout(() => {
+              setRetryCount(prev => prev + 1);
+            }, 2000);
+            return;
+          }
+        } else if (bookingId) {
+          bookingData = await fetchBookingById(bookingId);
+        } else {
+          setError('No booking reference provided');
+          setLoading(false);
+          return;
+        }
 
-      if (!data) {
-        setError('Booking not found');
-        return;
+        if (!bookingData) {
+          if (sessionId && retryCount >= 10) {
+            setError('Booking is still being processed. Please check your email for confirmation.');
+          } else {
+            setError('Booking not found');
+          }
+          setLoading(false);
+          return;
+        }
+
+        setBooking(bookingData);
+        setLoading(false);
+      } catch (err: any) {
+        console.error('Error fetching booking:', err);
+        setError('Failed to load booking details');
+        setLoading(false);
       }
+    };
 
-      const vehicleData = Array.isArray(data.vehicles) ? data.vehicles[0] : data.vehicles;
-
-      setBooking({
-        ...data,
-        vehicle: vehicleData
-      });
-    } catch (err: any) {
-      console.error('Error fetching booking:', err);
-      setError('Failed to load booking details');
-    } finally {
-      setLoading(false);
-    }
-  }
+    loadBooking();
+  }, [bookingId, sessionId, retryCount, fetchBookingBySessionId, fetchBookingById]);
 
   const calculateDays = () => {
     if (!booking) return 0;
@@ -174,8 +254,15 @@ export function BookingSuccessPage() {
     return (
       <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#9AA0A6]">Loading booking details...</p>
+          <Loader2 className="w-12 h-12 text-[#D4AF37] animate-spin mx-auto mb-4" />
+          <p className="text-white font-semibold mb-2">
+            {sessionId ? 'Processing your payment...' : 'Loading booking details...'}
+          </p>
+          {sessionId && retryCount > 0 && (
+            <p className="text-[#9AA0A6] text-sm">
+              Confirming your booking ({retryCount}/10)
+            </p>
+          )}
         </div>
       </div>
     );
