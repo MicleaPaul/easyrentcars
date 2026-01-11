@@ -3,7 +3,9 @@ import nodemailer from 'npm:nodemailer@6.9.16';
 
 const ALLOWED_ORIGINS = [
   'https://easyrentgraz.rentals',
+  'https://www.easyrentgraz.rentals',
   'https://easyrentcars.rentals',
+  'https://www.easyrentcars.rentals',
   'http://localhost:5173',
   'http://localhost:3000',
 ];
