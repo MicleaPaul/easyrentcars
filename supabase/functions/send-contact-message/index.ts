@@ -1,4 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
+import nodemailer from 'npm:nodemailer@6.9.16';
 
 const ALLOWED_ORIGINS = [
   'https://easyrentcars.rentals',
@@ -16,9 +17,8 @@ function getCorsHeaders(req: Request) {
   };
 }
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const FROM_EMAIL = 'onboarding@resend.dev';
-const FROM_NAME = 'EasyRentCars Contact Form';
+const GMAIL_USER = Deno.env.get('GMAIL_USER') || 'easyrentgraz@gmail.com';
+const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD');
 const TO_EMAIL = 'easyrentgraz@gmail.com';
 
 Deno.serve(async (req: Request) => {
@@ -282,39 +282,35 @@ Deno.serve(async (req: Request) => {
     let emailSent = false;
     let emailError = null;
 
-    if (RESEND_API_KEY) {
+    if (GMAIL_APP_PASSWORD) {
       try {
-        const resendResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: GMAIL_USER,
+            pass: GMAIL_APP_PASSWORD,
           },
-          body: JSON.stringify({
-            from: `${FROM_NAME} <${FROM_EMAIL}>`,
-            to: [TO_EMAIL],
-            reply_to: email,
-            subject: t.subject,
-            html: emailBody,
-          }),
         });
 
-        if (resendResponse.ok) {
-          const result = await resendResponse.json();
-          console.log('Contact message sent successfully via Resend:', result);
-          emailSent = true;
-        } else {
-          const errorData = await resendResponse.json();
-          console.error('Resend API error:', errorData);
-          emailError = errorData;
-        }
+        const info = await transporter.sendMail({
+          from: `"EasyRentCars Contact Form" <${GMAIL_USER}>`,
+          to: TO_EMAIL,
+          replyTo: email,
+          subject: t.subject,
+          html: emailBody,
+        });
+
+        console.log('Contact message sent successfully via Gmail SMTP:', info.messageId);
+        emailSent = true;
       } catch (err) {
-        console.error('Error sending email via Resend:', err);
-        emailError = err;
+        console.error('Error sending email via Gmail SMTP:', err);
+        emailError = err instanceof Error ? err.message : String(err);
       }
     } else {
-      console.log('RESEND_API_KEY not configured.');
-      emailError = 'RESEND_API_KEY not configured';
+      console.log('GMAIL_APP_PASSWORD not configured.');
+      emailError = 'GMAIL_APP_PASSWORD not configured';
     }
 
     return new Response(
@@ -334,7 +330,7 @@ Deno.serve(async (req: Request) => {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error processing contact form:', error);
     return new Response(
       JSON.stringify({

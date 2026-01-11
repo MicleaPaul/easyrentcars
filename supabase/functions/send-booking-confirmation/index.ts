@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
+import nodemailer from 'npm:nodemailer@6.9.16';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,9 +13,8 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const FROM_EMAIL = 'info@easyrentcars.rentals';
-const FROM_NAME = 'EasyRentCars';
+const GMAIL_USER = Deno.env.get('GMAIL_USER') || 'easyrentgraz@gmail.com';
+const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD');
 const BUSINESS_EMAIL = 'easyrentgraz@gmail.com';
 
 Deno.serve(async (req: Request) => {
@@ -333,7 +333,6 @@ Deno.serve(async (req: Request) => {
     const rentalCost = booking.rental_cost || 0;
     const locationFees = (booking.pickup_fee || 0) + (booking.return_fee || 0);
     const unlimitedKmFee = booking.unlimited_km_fee || 0;
-    const isPartialPayment = booking.payment_status === 'partial';
     const depositAmount = booking.deposit_amount || 0;
     const remainingAmount = booking.remaining_amount || 0;
     const isCashPayment = booking.payment_method === 'cash';
@@ -347,37 +346,33 @@ Deno.serve(async (req: Request) => {
     let emailSent = false;
     let emailError = null;
 
-    if (RESEND_API_KEY) {
+    if (GMAIL_APP_PASSWORD) {
       try {
-        const resendResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: GMAIL_USER,
+            pass: GMAIL_APP_PASSWORD,
           },
-          body: JSON.stringify({
-            from: `${FROM_NAME} <${FROM_EMAIL}>`,
-            to: [booking.customer_email, BUSINESS_EMAIL],
-            subject: t.subject,
-            html: emailBody,
-          }),
         });
 
-        if (resendResponse.ok) {
-          const result = await resendResponse.json();
-          console.log('Email sent successfully via Resend:', result);
-          emailSent = true;
-        } else {
-          const errorData = await resendResponse.json();
-          console.error('Resend API error:', errorData);
-          emailError = errorData;
-        }
+        const info = await transporter.sendMail({
+          from: `"EasyRentCars" <${GMAIL_USER}>`,
+          to: [booking.customer_email, BUSINESS_EMAIL].join(', '),
+          subject: t.subject,
+          html: emailBody,
+        });
+
+        console.log('Email sent successfully via Gmail SMTP:', info.messageId);
+        emailSent = true;
       } catch (err) {
-        console.error('Error sending email via Resend:', err);
-        emailError = err;
+        console.error('Error sending email via Gmail SMTP:', err);
+        emailError = err instanceof Error ? err.message : String(err);
       }
     } else {
-      console.log('RESEND_API_KEY not configured. Email would be sent to:', booking.customer_email, 'and', BUSINESS_EMAIL);
+      console.log('GMAIL_APP_PASSWORD not configured. Email would be sent to:', booking.customer_email, 'and', BUSINESS_EMAIL);
     }
 
     console.log(`Booking confirmation email prepared for ${booking.customer_email} and ${BUSINESS_EMAIL}. Sent: ${emailSent}`);
@@ -387,7 +382,7 @@ Deno.serve(async (req: Request) => {
         success: true,
         message: emailSent
           ? 'Booking confirmation email sent successfully'
-          : 'Email prepared (Resend API key not configured)',
+          : 'Email prepared (Gmail not configured)',
         booking_id: booking.id,
         customer_email: booking.customer_email,
         email_sent: emailSent,
@@ -400,10 +395,11 @@ Deno.serve(async (req: Request) => {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error sending booking confirmation:', error);
-    const safeMessage = error.message === 'Missing required field: booking_id' || error.message === 'Booking not found'
-      ? error.message
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const safeMessage = errorMessage === 'Missing required field: booking_id' || errorMessage === 'Booking not found'
+      ? errorMessage
       : 'An error occurred while sending the booking confirmation';
     return new Response(
       JSON.stringify({ error: safeMessage }),
