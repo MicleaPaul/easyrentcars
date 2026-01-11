@@ -17,7 +17,7 @@ function getCorsHeaders(req: Request) {
 }
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const FROM_EMAIL = 'info@easyrentcars.rentals';
+const FROM_EMAIL = 'onboarding@resend.dev';
 const FROM_NAME = 'EasyRentCars Contact Form';
 const TO_EMAIL = 'easyrentgraz@gmail.com';
 
