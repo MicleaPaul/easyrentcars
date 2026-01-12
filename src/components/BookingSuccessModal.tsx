@@ -1,18 +1,16 @@
-import { CheckCircle, X, TestTube, Calendar, CreditCard, Hash, ArrowRight } from 'lucide-react';
+import { CheckCircle, X, Calendar, CreditCard, Hash, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface BookingSuccessModalProps {
   bookingId: string;
-  isTestMode?: boolean;
   paymentMethod?: string;
   onClose: () => void;
 }
 
 export function BookingSuccessModal({
   bookingId,
-  isTestMode = false,
-  paymentMethod = 'skipped',
+  paymentMethod = 'stripe',
   onClose,
 }: BookingSuccessModalProps) {
   const navigate = useNavigate();
@@ -59,14 +57,7 @@ export function BookingSuccessModal({
             </div>
 
             <h2 id="modal-title" className="text-xl sm:text-2xl font-bold text-white mt-3 sm:mt-4 mb-1">
-              {isTestMode ? (
-                <span className="flex items-center justify-center gap-2">
-                  <TestTube className="w-5 h-5 sm:w-6 sm:h-6" />
-                  {t('modal.testBookingCreated') || 'TEST BOOKING CREATED'}
-                </span>
-              ) : (
-                t('modal.bookingConfirmed') || 'Booking Confirmed!'
-              )}
+              {t('modal.bookingConfirmed') || 'Booking Confirmed!'}
             </h2>
 
             <p className="text-[#9AA0A6] text-sm">
@@ -97,11 +88,7 @@ export function BookingSuccessModal({
                 <span>{t('modal.status') || 'Status'}</span>
               </div>
               <div className="text-white font-semibold text-sm">
-                {isTestMode ? (
-                  <span className="text-yellow-500">{t('modal.testMode') || 'Test Mode'}</span>
-                ) : (
-                  <span className="text-green-500">{t('modal.confirmed') || 'Confirmed'}</span>
-                )}
+                <span className="text-green-500">{t('modal.confirmed') || 'Confirmed'}</span>
               </div>
             </div>
 
@@ -114,25 +101,9 @@ export function BookingSuccessModal({
               <div className="text-white font-semibold text-sm">
                 {paymentMethod === 'cash' && (t('modal.cash') || 'Cash')}
                 {paymentMethod === 'stripe' && (t('modal.card') || 'Card')}
-                {paymentMethod === 'skipped' && (t('modal.skipped') || 'Skipped')}
               </div>
             </div>
           </div>
-
-          {/* Test Mode Notice */}
-          {isTestMode && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <TestTube className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
-                <div className="text-xs sm:text-sm text-yellow-200/90 leading-relaxed">
-                  <p className="font-semibold mb-1">{t('modal.testModeNotice') || 'Test Mode Active'}</p>
-                  <p className="text-yellow-200/70 text-xs">
-                    {t('modal.testModeDescription') || 'This booking was created in test mode and will be marked accordingly. Email notifications will still be sent.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Success Message */}
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">

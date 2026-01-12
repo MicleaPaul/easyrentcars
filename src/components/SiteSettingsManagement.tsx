@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Clock, MapPin, Phone, Mail, DollarSign, Save, AlertCircle, TestTube } from 'lucide-react';
+import { Clock, MapPin, Phone, Mail, DollarSign, Save, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { isSuperAdmin } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SiteSetting {
@@ -18,20 +17,10 @@ export function SiteSettingsManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [isUserSuperAdmin, setIsUserSuperAdmin] = useState(false);
 
   useEffect(() => {
     fetchSettings();
-    checkSuperAdmin();
   }, []);
-
-  async function checkSuperAdmin() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const isSA = await isSuperAdmin(user.id);
-      setIsUserSuperAdmin(isSA);
-    }
-  }
 
   async function fetchSettings() {
     try {
@@ -160,46 +149,6 @@ export function SiteSettingsManagement() {
         amount_per_day: value,
       },
     });
-  }
-
-  async function toggleTestMode() {
-    const isEnabled = settings.test_mode?.enabled || false;
-
-    if (!isEnabled) {
-      const confirmed = window.confirm(
-        'ATENȚIE: Activezi Test Mode!\n\n' +
-        'În acest mod, rezervările vor fi confirmate automat FĂRĂ procesare de plată.\n' +
-        'Aceasta este o funcție TEMPORARĂ pentru debugging.\n\n' +
-        'Ești sigur că vrei să continui?'
-      );
-
-      if (!confirmed) return;
-
-      console.warn('⚠️ TEST MODE ENABLED - Bookings will skip payment processing');
-    }
-
-    const newTestMode = {
-      ...settings.test_mode,
-      enabled: !isEnabled,
-    };
-
-    setSettings({
-      ...settings,
-      test_mode: newTestMode,
-    });
-
-    setSaving(true);
-    const success = await updateSetting('test_mode', newTestMode);
-    setSaving(false);
-
-    if (success) {
-      setSuccessMessage(
-        !isEnabled
-          ? '🧪 Test Mode ACTIVATED - Bookings will skip payment'
-          : '✓ Test Mode DEACTIVATED - Normal payment flow restored'
-      );
-      setTimeout(() => setSuccessMessage(''), 5000);
-    }
   }
 
   if (loading) {
@@ -456,76 +405,6 @@ export function SiteSettingsManagement() {
           </div>
         </div>
       </div>
-
-      {isUserSuperAdmin && (
-        <div className="card-luxury p-6 bg-orange-500/10 border-orange-500/30">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center animate-pulse">
-              <TestTube className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-orange-400">Test Mode (Super Admin Only)</h3>
-              <p className="text-orange-300/80 text-sm">Debugging feature - Skip payment processing for testing</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="p-4 bg-orange-500/5 border border-orange-500/20 rounded-lg">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="text-white font-semibold text-lg">Test Mode Status</h4>
-                    {settings.test_mode?.enabled ? (
-                      <span className="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full uppercase">
-                        ON
-                      </span>
-                    ) : (
-                      <span className="px-3 py-1 bg-gray-500 text-white text-xs font-bold rounded-full uppercase">
-                        OFF
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[#9AA0A6] text-sm mb-3">
-                    When enabled, new bookings will be automatically confirmed without payment processing.
-                    Email notifications will still be sent.
-                  </p>
-                  <ul className="space-y-1 text-xs text-orange-300/80">
-                    <li>✓ Skips Stripe payment processing</li>
-                    <li>✓ Auto-confirms bookings</li>
-                    <li>✓ Sends email notifications</li>
-                    <li>✓ Marks bookings with TEST badge</li>
-                  </ul>
-                </div>
-                <button
-                  onClick={toggleTestMode}
-                  disabled={saving}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
-                    settings.test_mode?.enabled
-                      ? 'bg-red-500 hover:bg-red-600 text-white'
-                      : 'bg-orange-500 hover:bg-orange-600 text-white'
-                  } disabled:opacity-50`}
-                >
-                  {settings.test_mode?.enabled ? 'Disable Test Mode' : 'Enable Test Mode'}
-                </button>
-              </div>
-            </div>
-
-            <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-400 mt-0.5" />
-                <div>
-                  <p className="text-red-400 font-semibold mb-1">⚠️ Warning: Temporary Feature</p>
-                  <p className="text-red-300/80 text-sm">
-                    This is a temporary debugging feature. Use only for testing the booking flow.
-                    All test bookings will be marked and easily identifiable in the bookings management.
-                    This functionality will be removed in a future update.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="card-luxury p-4 bg-amber-500/10 border-amber-500/30">
         <div className="flex items-start gap-3">

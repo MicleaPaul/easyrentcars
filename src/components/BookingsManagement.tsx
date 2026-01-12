@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Filter, Eye, Check, X as XIcon, DollarSign, Fuel, MapPin, Clock, ArrowRight, AlertCircle, Lock, TestTube, Trash2, Droplet } from 'lucide-react';
+import { Search, Filter, Eye, Check, X as XIcon, DollarSign, Fuel, MapPin, Clock, ArrowRight, AlertCircle, Lock, Trash2, Droplet } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { FuelLevelManager } from './FuelLevelManager';
 import { FuelLevelQuickModal } from './FuelLevelQuickModal';
@@ -35,7 +35,6 @@ interface Booking {
   remaining_amount?: number;
   paid_at?: string;
   deposit_paid_at?: string;
-  is_test_mode?: boolean;
 }
 
 interface Vehicle {
@@ -164,12 +163,6 @@ export function BookingsManagement() {
 
   const hasCustomLocation = (booking: Booking) => {
     return booking.pickup_location_address || booking.return_location_address;
-  };
-
-  const isTestBooking = (booking: Booking) => {
-    return booking.is_test_mode === true ||
-           booking.payment_method === 'test_mode' ||
-           (booking.notes?.includes('[TEST MODE]') ?? false);
   };
 
   const pendingApprovalCount = bookings.filter(
@@ -307,25 +300,9 @@ export function BookingsManagement() {
                       className="hover:bg-[#D4AF37]/5 transition-colors"
                     >
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
-                          <p className="text-white font-mono text-sm">
-                            {booking.id.slice(0, 8)}...
-                          </p>
-                          {isTestBooking(booking) && (
-                            <div className="flex items-center gap-1 group relative">
-                              <span className="px-2 py-0.5 bg-orange-500/20 border border-orange-500/40 text-orange-400 text-xs font-bold rounded uppercase flex items-center gap-1">
-                                <TestTube className="w-3 h-3" />
-                                {t('admin.test')}
-                              </span>
-                              <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-10">
-                                <div className="bg-[#1a1d21] border border-orange-500/30 rounded-lg p-2 shadow-lg whitespace-nowrap">
-                                  <p className="text-orange-400 text-xs font-semibold">{t('admin.testModeBooking')}</p>
-                                  <p className="text-[#9AA0A6] text-xs">{t('admin.noPaymentProcessed')}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        <p className="text-white font-mono text-sm">
+                          {booking.id.slice(0, 8)}...
+                        </p>
                       </td>
                       <td className="px-6 py-4">
                         <div>

@@ -57,7 +57,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   const [submitting, setSubmitting] = useState(false);
   const [showContractTooltip, setShowContractTooltip] = useState(false);
   const [showUnlimitedKmTooltip, setShowUnlimitedKmTooltip] = useState(false);
-  const [isTestMode, setIsTestMode] = useState(false);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successModalData, setSuccessModalData] = useState<{
@@ -81,25 +80,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
     if (id) {
       fetchCarDetails(id);
     }
-    checkTestMode();
   }, [id]);
-
-  async function checkTestMode() {
-    try {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('value')
-        .eq('key', 'test_mode')
-        .maybeSingle();
-
-      if (!error && data?.value?.enabled) {
-        setIsTestMode(true);
-        console.warn('TEST MODE ACTIVE - Booking will skip payment processing');
-      }
-    } catch (error) {
-      console.error('Error checking test mode:', error);
-    }
-  }
 
   async function fetchCarDetails(carId: string) {
     try {
@@ -223,40 +204,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
         after_hours_fee: afterHoursFee,
         total_amount: total,
       };
-
-      if (isTestMode) {
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-test-booking`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(bookingData),
-          }
-        );
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to create test booking');
-        }
-
-        const { booking_id, email_sent, email_error } = await response.json();
-
-        if (email_sent) {
-          console.log('✓ Confirmation emails sent successfully to customer and business');
-        } else {
-          console.warn('⚠ Booking created but emails not sent:', email_error);
-        }
-
-        setSuccessModalData({
-          bookingId: booking_id,
-          paymentMethod: 'skipped'
-        });
-        setShowSuccessModal(true);
-        return;
-      }
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-booking-checkout`,
@@ -791,7 +738,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
       {showSuccessModal && successModalData && (
         <BookingSuccessModal
           bookingId={successModalData.bookingId}
-          isTestMode={isTestMode}
           paymentMethod={successModalData.paymentMethod}
           onClose={() => {
             setShowSuccessModal(false);
