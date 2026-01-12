@@ -35,7 +35,7 @@ export function HeroSection() {
         <div className="text-center mb-8 xs:mb-10 sm:mb-16 animate-fadeIn">
           <h1 className="font-bold text-white mb-3 xs:mb-4 sm:mb-6 tracking-tight leading-[1.1]">
             {t('hero.title')}<br />
-            <span className="text-gradient">{t('hero.titleSecond')}</span>
+            <span className="text-gradient">{t('hero.titleHighlight')}</span>
           </h1>
 
           <p className="text-white/90 text-base xs:text-lg sm:text-xl max-w-2xl mx-auto mb-6 xs:mb-8 sm:mb-12 leading-relaxed drop-shadow-lg px-2">

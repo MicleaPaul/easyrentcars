@@ -70,7 +70,7 @@ export function AGBPage() {
         <SEOHead
           title={`${getTitleByLanguage()} - EasyRentCars`}
           description="Allgemeine Geschäftsbedingungen für Autovermietung bei EasyRentCars in Graz"
-          path="/agb"
+          canonicalUrl="https://easyrentcars.rentals/agb"
         />
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-5xl">
           <button
@@ -104,7 +104,7 @@ export function AGBPage() {
       <SEOHead
         title={`${getTitleByLanguage()} - EasyRentCars`}
         description="Allgemeine Geschäftsbedingungen für Autovermietung bei EasyRentCars in Graz"
-        path="/agb"
+        canonicalUrl="https://easyrentcars.rentals/agb"
       />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-5xl">

@@ -12,9 +12,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'Abmelden',
 
     // Hero Section
-    'hero.title': 'Luxus Lifestyle',
-    'hero.titleSecond': 'Vermietungen',
-    'hero.subtitle': 'Graz, Oesterreich – Premium Autos. Einfache Buchung. Schnelle Lieferung.',
+    'hero.title': 'Autovermietung',
+    'hero.titleHighlight': 'in Graz',
+    'hero.subtitle': 'Graz, Oesterreich – Guenstige und zuverlaessige Mietwagen. Einfache Buchung. Schnelle Lieferung.',
     'hero.cta': 'Jetzt buchen',
     'hero.viewFleet': 'Flotte ansehen',
     'hero.description': 'Buchen Sie Ihr Auto in unter 2 Minuten',
@@ -710,9 +710,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'Logout',
 
     // Hero Section
-    'hero.title': 'Luxury Lifestyle',
-    'hero.titleSecond': 'Rentals',
-    'hero.subtitle': 'Graz, Austria – Premium cars. Simple booking. Fast delivery.',
+    'hero.title': 'Car Rental',
+    'hero.titleHighlight': 'in Graz',
+    'hero.subtitle': 'Graz, Austria – Affordable and reliable car rental. Simple booking. Fast delivery.',
     'hero.cta': 'Book Now',
     'hero.viewFleet': 'View Fleet',
     'hero.description': 'Book your car in under 2 minutes',
@@ -1423,9 +1423,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cookies.privacyPolicy': 'Politique de Confidentialité',
 
     // Hero Section
-    'hero.title': 'Location de Luxe',
-    'hero.titleSecond': 'Premium',
-    'hero.subtitle': 'Graz, Autriche – Voitures premium. Reservation simple. Livraison rapide.',
+    'hero.title': 'Location de Voiture',
+    'hero.titleHighlight': 'a Graz',
+    'hero.subtitle': 'Graz, Autriche – Location de voiture abordable et fiable. Reservation simple. Livraison rapide.',
     'hero.cta': 'Reserver',
     'hero.viewFleet': 'Voir la Flotte',
     'hero.description': 'Reservez votre voiture en moins de 2 minutes',
@@ -2108,9 +2108,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cookies.privacyPolicy': 'Informativa sulla Privacy',
 
     // Hero Section
-    'hero.title': 'Noleggio di Lusso',
-    'hero.titleSecond': 'Premium',
-    'hero.subtitle': 'Graz, Austria – Auto premium. Prenotazione semplice. Consegna veloce.',
+    'hero.title': 'Autonoleggio',
+    'hero.titleHighlight': 'a Graz',
+    'hero.subtitle': 'Graz, Austria – Noleggio auto conveniente e affidabile. Prenotazione semplice. Consegna veloce.',
     'hero.cta': 'Prenota Ora',
     'hero.viewFleet': 'Vedi Flotta',
     'hero.description': 'Prenota la tua auto in meno di 2 minuti',
@@ -2792,9 +2792,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'cookies.privacyPolicy': 'Política de Privacidad',
 
     // Hero Section
-    'hero.title': 'Alquiler de Lujo',
-    'hero.titleSecond': 'Premium',
-    'hero.subtitle': 'Graz, Austria – Coches premium. Reserva simple. Entrega rápida.',
+    'hero.title': 'Alquiler de Coches',
+    'hero.titleHighlight': 'en Graz',
+    'hero.subtitle': 'Graz, Austria – Alquiler de coches economico y fiable. Reserva simple. Entrega rapida.',
     'hero.cta': 'Reservar Ahora',
     'hero.viewFleet': 'Ver Flota',
     'hero.description': 'Reserva tu coche en menos de 2 minutos',
@@ -3461,9 +3461,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'nav.logout': 'Deconectare',
 
     // Hero Section
-    'hero.title': 'Închirieri de Lux',
-    'hero.titleSecond': 'Premium',
-    'hero.subtitle': 'Graz, Austria – Mașini premium. Rezervare simplă. Livrare rapidă.',
+    'hero.title': 'Inchirieri Auto',
+    'hero.titleHighlight': 'in Graz',
+    'hero.subtitle': 'Graz, Austria – Inchirieri auto accesibile si de incredere. Rezervare simpla. Livrare rapida.',
     'hero.cta': 'Rezervă Acum',
     'hero.viewFleet': 'Vezi Flota',
     'hero.description': 'Rezervă mașina în mai puțin de 2 minute',
