@@ -136,7 +136,7 @@ export function Footer() {
           </p>
           <div className="flex gap-4 sm:gap-6 text-[10px] xs:text-xs sm:text-sm">
             <button
-              onClick={() => navigate('/agb')}
+              onClick={() => navigate('/privacy-policy')}
               className="text-[#B8B9BB] hover:text-[#F6C90E] active:text-[#F6C90E] transition-colors py-1 touch-manipulation"
             >
               {t('footer.privacy')}
