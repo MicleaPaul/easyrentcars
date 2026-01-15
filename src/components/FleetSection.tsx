@@ -152,7 +152,7 @@ export function FleetSection() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 rounded-lg font-semibold text-xs xs:text-sm sm:text-base transition-all min-h-touch touch-manipulation active:scale-95 ${
+                className={`px-3 xs:px-4 sm:px-6 py-2 xs:py-2.5 sm:py-3 rounded-lg font-semibold text-sm xs:text-base sm:text-lg transition-all min-h-touch touch-manipulation active:scale-95 ${
                   selectedCategory === cat
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black shadow-lg'
                     : 'bg-[#111316] text-[#9AA0A6] border border-[#D4AF37]/20 hover:border-[#D4AF37] hover:text-[#D4AF37]'
