@@ -1,11 +1,26 @@
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin, Car } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import { Logo } from './Logo';
 
 export function Footer() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+
+  const contactInfo = settings.contact_info || {
+    phone: '+43 664 1584950',
+    email: 'info@easyrentcars.rentals',
+    address: {
+      street: 'Alte Poststrasse 152',
+      city: 'Graz',
+      postalCode: '8020',
+      country: 'Austria'
+    }
+  };
+
+  const phoneForHref = contactInfo.phone.replace(/\s/g, '');
 
   return (
     <footer
@@ -45,16 +60,16 @@ export function Footer() {
                 <div className="min-w-0">
                   <p className="font-semibold text-white text-sm xs:text-base">{t('footer.address')}</p>
                   <p className="text-xs xs:text-sm">
-                    <span itemProp="streetAddress">Alte Poststrasse 152</span>,{' '}
-                    <span itemProp="postalCode">8020</span>{' '}
-                    <span itemProp="addressLocality">Graz</span>,{' '}
-                    <span itemProp="addressCountry">Austria</span>
+                    <span itemProp="streetAddress">{contactInfo.address.street}</span>,{' '}
+                    <span itemProp="postalCode">{contactInfo.address.postalCode}</span>{' '}
+                    <span itemProp="addressLocality">{contactInfo.address.city}</span>,{' '}
+                    <span itemProp="addressCountry">{contactInfo.address.country}</span>
                   </p>
                 </div>
               </div>
 
               <a
-                href="tel:+436641584950"
+                href={`tel:${phoneForHref}`}
                 className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB] p-1.5 -m-1.5 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
                 itemProp="telephone"
               >
@@ -62,13 +77,13 @@ export function Footer() {
                 <div className="min-w-0">
                   <p className="font-semibold text-white text-sm xs:text-base">{t('footer.phone')}</p>
                   <p className="hover:text-[#F6C90E] transition-colors text-xs xs:text-sm">
-                    +43 664 1584950
+                    {contactInfo.phone}
                   </p>
                 </div>
               </a>
 
               <a
-                href="mailto:info@easyrentcars.rentals"
+                href={`mailto:${contactInfo.email}`}
                 className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB] p-1.5 -m-1.5 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
                 itemProp="email"
               >
@@ -76,7 +91,7 @@ export function Footer() {
                 <div className="min-w-0">
                   <p className="font-semibold text-white text-sm xs:text-base">{t('footer.email')}</p>
                   <p className="hover:text-[#F6C90E] transition-colors text-xs xs:text-sm break-all">
-                    info@easyrentcars.rentals
+                    {contactInfo.email}
                   </p>
                 </div>
               </a>
