@@ -7,6 +7,7 @@ import { VehicleBlocksManagement } from '../components/VehicleBlocksManagement';
 import { BookingsManagement } from '../components/BookingsManagement';
 import { FAQManagement } from '../components/FAQManagement';
 import { AGBManagement } from '../components/AGBManagement';
+import { PrivacyPolicyManagement } from '../components/PrivacyPolicyManagement';
 import { SiteSettingsManagement } from '../components/SiteSettingsManagement';
 import { Logo } from '../components/Logo';
 import { useNavigate } from 'react-router-dom';
@@ -61,7 +62,7 @@ export function AdminDashboard() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehicleBlocks, setVehicleBlocks] = useState<Record<string, VehicleBlock[]>>({});
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'vehicles' | 'bookings' | 'blocks' | 'faqs' | 'agb' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'vehicles' | 'bookings' | 'blocks' | 'faqs' | 'agb' | 'privacy' | 'settings'>('overview');
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [blockingVehicle, setBlockingVehicle] = useState<{ id: string; name: string; block?: VehicleBlock } | null>(null);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
@@ -415,6 +416,16 @@ export function AdminDashboard() {
             {t('admin.agb')}
           </button>
           <button
+            onClick={() => setActiveTab('privacy')}
+            className={`px-6 py-3 rounded-lg font-semibold text-sm uppercase tracking-wide transition-all whitespace-nowrap ${
+              activeTab === 'privacy'
+                ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black'
+                : 'bg-[#111316] text-[#9AA0A6] border border-[#D4AF37]/20 hover:border-[#D4AF37]'
+            }`}
+          >
+            {t('admin.privacyPolicy')}
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`px-6 py-3 rounded-lg font-semibold text-sm uppercase tracking-wide transition-all whitespace-nowrap ${
               activeTab === 'settings'
@@ -608,6 +619,8 @@ export function AdminDashboard() {
         {activeTab === 'faqs' && <FAQManagement />}
 
         {activeTab === 'agb' && <AGBManagement />}
+
+        {activeTab === 'privacy' && <PrivacyPolicyManagement />}
 
         {activeTab === 'settings' && <SiteSettingsManagement />}
       </div>

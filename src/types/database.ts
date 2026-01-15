@@ -113,6 +113,27 @@ export interface TermsAndConditions {
   updated_at: string;
 }
 
+export interface PrivacyPolicy {
+  id: string;
+  section_key: string;
+  heading_de: string;
+  heading_en: string;
+  heading_fr: string;
+  heading_it: string;
+  heading_es: string;
+  heading_ro: string;
+  content_de: string[];
+  content_en: string[];
+  content_fr: string[];
+  content_it: string[];
+  content_es: string[];
+  content_ro: string[];
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface NotificationTemplate {
   id: string;
   type: string;

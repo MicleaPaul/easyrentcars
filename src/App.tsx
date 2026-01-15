@@ -12,6 +12,7 @@ import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { AGBPage } from './pages/AGBPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { Footer } from './components/Footer';
 import { MobileMenu } from './components/MobileMenu';
 import { StructuredData } from './components/StructuredData';
@@ -101,6 +102,9 @@ function AppContent() {
               <button onClick={() => navigate('/agb')} className="text-[#F5F7FA] hover:text-[#D4AF37] transition-colors font-medium text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 focus:ring-offset-[#0B0C0F] rounded-sm" aria-label="Navigate to terms and conditions page">
                 {t('nav.agb')}
               </button>
+              <button onClick={() => navigate('/privacy-policy')} className="text-[#F5F7FA] hover:text-[#D4AF37] transition-colors font-medium text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 focus:ring-offset-[#0B0C0F] rounded-sm" aria-label="Navigate to privacy policy page">
+                {t('nav.privacyPolicy')}
+              </button>
             </nav>
 
             <div className="flex items-center gap-2 xs:gap-3 sm:gap-4">
@@ -159,6 +163,7 @@ function AppContent() {
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/booking-success" element={<BookingSuccessPage />} />
           <Route path="/agb" element={<AGBPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route
             path="/admin"
             element={
