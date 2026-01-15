@@ -146,12 +146,6 @@
     padding-bottom: env(safe-area-inset-bottom);
     z-index: 40;
   }
-
-  @media (max-width: 374px) {
-    .text-gradient {
-      font-size: 0.9em;
-    }
-  }
 }
 
 @keyframes fadeIn {
