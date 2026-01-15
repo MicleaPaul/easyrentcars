@@ -46,11 +46,6 @@ interface SiteSettings {
     currency: string;
     description: string;
   };
-  unlimited_km_fee?: {
-    amount_per_day: number;
-    currency: string;
-    description: string;
-  };
 }
 
 export function useSiteSettings() {

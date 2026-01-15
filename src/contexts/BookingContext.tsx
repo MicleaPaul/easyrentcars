@@ -18,7 +18,6 @@ export interface BookingContextData {
   pickupTime: string;
   returnTime: string;
   category: string;
-  unlimitedKilometers: boolean;
   contractNumber: string;
   setPickupLocation: (location: LocationData | null) => void;
   setReturnLocation: (location: LocationData | null) => void;
@@ -27,7 +26,6 @@ export interface BookingContextData {
   setPickupTime: (time: string) => void;
   setReturnTime: (time: string) => void;
   setCategory: (category: string) => void;
-  setUnlimitedKilometers: (unlimited: boolean) => void;
   setContractNumber: (number: string) => void;
   clearBookingData: () => void;
   getTotalLocationFees: () => number;
@@ -137,19 +135,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     return 'all';
   });
 
-  const [unlimitedKilometers, setUnlimitedKilometersState] = useState<boolean>(() => {
-    const saved = localStorage.getItem(BOOKING_DATA_KEY);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        return data.unlimitedKilometers || false;
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
-
   const [contractNumber, setContractNumberState] = useState<string>(() => {
     const saved = localStorage.getItem(BOOKING_DATA_KEY);
     if (saved) {
@@ -172,7 +157,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       pickupTime,
       returnTime,
       category,
-      unlimitedKilometers,
       contractNumber,
     };
     localStorage.setItem(BOOKING_DATA_KEY, JSON.stringify(bookingData));
@@ -184,7 +168,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     pickupTime,
     returnTime,
     category,
-    unlimitedKilometers,
     contractNumber,
   ]);
 
@@ -216,10 +199,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     setCategoryState(cat);
   };
 
-  const setUnlimitedKilometers = (unlimited: boolean) => {
-    setUnlimitedKilometersState(unlimited);
-  };
-
   const setContractNumber = (number: string) => {
     setContractNumberState(number);
   };
@@ -232,7 +211,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
     setPickupTimeState('10:00');
     setReturnTimeState('10:00');
     setCategoryState('all');
-    setUnlimitedKilometersState(false);
     setContractNumberState('');
     localStorage.removeItem(BOOKING_DATA_KEY);
   };
@@ -253,7 +231,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
         pickupTime,
         returnTime,
         category,
-        unlimitedKilometers,
         contractNumber,
         setPickupLocation,
         setReturnLocation,
@@ -262,7 +239,6 @@ export function BookingProvider({ children }: { children: ReactNode }) {
         setPickupTime,
         setReturnTime,
         setCategory,
-        setUnlimitedKilometers,
         setContractNumber,
         clearBookingData,
         getTotalLocationFees,

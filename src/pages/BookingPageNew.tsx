@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Banknote, Shield, CheckCircle, Clock, AlertCircle, Info, Infinity } from 'lucide-react';
+import { ArrowLeft, CreditCard, Banknote, Shield, CheckCircle, Clock, AlertCircle, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBooking } from '../contexts/BookingContext';
 import { supabase } from '../lib/supabase';
@@ -44,8 +44,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
     setPickupTime,
     returnTime,
     setReturnTime,
-    unlimitedKilometers,
-    setUnlimitedKilometers,
     contractNumber,
     setContractNumber,
     getTotalLocationFees
@@ -56,7 +54,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showContractTooltip, setShowContractTooltip] = useState(false);
-  const [showUnlimitedKmTooltip, setShowUnlimitedKmTooltip] = useState(false);
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successModalData, setSuccessModalData] = useState<{
@@ -133,11 +130,9 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   const locationFees = getTotalLocationFees();
   const afterHoursFee = calculateAfterHoursFee();
   const cleaningFeeAmount = settings.cleaning_fee?.amount || 7;
-  const unlimitedKmFeePerDay = settings.unlimited_km_fee?.amount_per_day || 15;
-  const unlimitedKmFee = unlimitedKilometers ? unlimitedKmFeePerDay * days : 0;
   const cleaningFee = cleaningFeeAmount;
   const rentalCost = car ? days * car.price_per_day : 0;
-  const total = rentalCost + cleaningFee + locationFees + afterHoursFee + unlimitedKmFee;
+  const total = rentalCost + cleaningFee + locationFees + afterHoursFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,7 +195,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
         return_location_address: returnLocation?.isCustom ? returnLocation.address : null,
         pickup_fee: pickupLocation?.fee || 0,
         return_fee: returnLocation?.fee || 0,
-        unlimited_kilometers: unlimitedKilometers,
         contract_number: contractNumber || null,
         notes: formData.notes || null,
         language: language,
@@ -210,7 +204,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
         rental_cost: rentalCost,
         cleaning_fee: cleaningFee,
         location_fees: locationFees,
-        unlimited_km_fee: unlimitedKmFee,
         after_hours_fee: afterHoursFee,
         total_amount: total,
       };
@@ -364,50 +357,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                 </div>
 
                 <div className="mt-6 space-y-4">
-                  <div className="p-5 bg-[#111316] border-2 border-[#D4AF37]/20 rounded-lg hover:border-[#D4AF37]/40 transition-all">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3 flex-1">
-                        <input
-                          type="checkbox"
-                          id="unlimitedKm"
-                          checked={unlimitedKilometers}
-                          onChange={(e) => setUnlimitedKilometers(e.target.checked)}
-                          className="mt-1 w-5 h-5 rounded border-[#D4AF37]/40 bg-[#0B0C0F] text-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20"
-                        />
-                        <div className="flex-1">
-                          <label htmlFor="unlimitedKm" className="block text-white font-semibold mb-1 cursor-pointer">
-                            {t('bookingPage.unlimitedKm') || 'Unlimited Kilometers'} (+EUR{unlimitedKmFee})
-                          </label>
-                          <p className="text-sm text-[#9AA0A6]">
-                            {t('bookingPage.unlimitedKmDesc') || 'Upgrade from 200 km/day to unlimited kilometers for only EUR15/day'}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onMouseEnter={() => setShowUnlimitedKmTooltip(true)}
-                          onMouseLeave={() => setShowUnlimitedKmTooltip(false)}
-                          onClick={() => setShowUnlimitedKmTooltip(!showUnlimitedKmTooltip)}
-                          className="relative text-[#D4AF37] hover:text-[#F4D03F] transition-colors"
-                        >
-                          <Info className="w-5 h-5" />
-                          {showUnlimitedKmTooltip && (
-                            <div className="absolute bottom-full right-0 mb-2 w-72 p-4 bg-[#0B0C0F] border border-[#D4AF37]/30 rounded-lg shadow-xl z-10">
-                              <div className="flex items-start gap-2 mb-2">
-                                <Infinity className="w-5 h-5 text-[#D4AF37] flex-shrink-0 mt-0.5" />
-                                <p className="text-white font-semibold text-sm">
-                                  {t('bookingPage.unlimitedKmTooltipTitle') || 'Kilometer Packages'}
-                                </p>
-                              </div>
-                              <p className="text-xs text-[#9AA0A6] leading-relaxed">
-                                {t('bookingPage.unlimitedKmTooltip') || 'Standard package includes 200 km per day. Each extra kilometer costs EUR0.27. With Unlimited package, drive as much as you want without extra costs!'}
-                              </p>
-                            </div>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <label className="block text-[#9AA0A6] text-sm font-medium">
@@ -732,12 +681,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                   <div className="flex justify-between text-sm">
                     <span className="text-[#9AA0A6]">{t('bookingPage.afterHoursFee')}</span>
                     <span className="text-white font-semibold">EUR{afterHoursFee}</span>
-                  </div>
-                )}
-                {unlimitedKmFee > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#9AA0A6]">{t('bookingPage.unlimitedKm')}</span>
-                    <span className="text-white font-semibold">EUR{unlimitedKmFee}</span>
                   </div>
                 )}
               </div>

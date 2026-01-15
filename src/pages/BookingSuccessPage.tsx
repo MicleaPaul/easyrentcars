@@ -23,11 +23,9 @@ interface BookingDetails {
   booking_status: string;
   after_hours_fee: number;
   cleaning_fee: number;
-  unlimited_kilometers: boolean;
   language: string;
   rental_days?: number;
   rental_cost?: number;
-  unlimited_km_fee?: number;
   deposit_amount?: number;
   remaining_amount?: number;
   vehicle: {
@@ -74,11 +72,9 @@ export function BookingSuccessPage() {
         booking_status,
         after_hours_fee,
         cleaning_fee,
-        unlimited_kilometers,
         language,
         rental_days,
         rental_cost,
-        unlimited_km_fee,
         deposit_amount,
         remaining_amount,
         vehicles (
@@ -122,11 +118,9 @@ export function BookingSuccessPage() {
         booking_status,
         after_hours_fee,
         cleaning_fee,
-        unlimited_kilometers,
         language,
         rental_days,
         rental_cost,
-        unlimited_km_fee,
         deposit_amount,
         remaining_amount,
         vehicles (
@@ -293,7 +287,6 @@ export function BookingSuccessPage() {
   const days = calculateDays();
   const rentalCost = booking.rental_cost || 0;
   const locationFees = (booking.pickup_fee || 0) + (booking.return_fee || 0);
-  const unlimitedKmFee = booking.unlimited_km_fee || 0;
   const depositAmount = booking.deposit_amount || 0;
   const remainingAmount = booking.remaining_amount || 0;
 
@@ -464,13 +457,6 @@ export function BookingSuccessPage() {
               <div className="flex justify-between">
                 <span className="text-[#9AA0A6]">After Hours Fee</span>
                 <span className="text-white font-semibold">EUR{booking.after_hours_fee}</span>
-              </div>
-            )}
-
-            {unlimitedKmFee > 0 && (
-              <div className="flex justify-between">
-                <span className="text-[#9AA0A6]">Unlimited Kilometers</span>
-                <span className="text-white font-semibold">EUR{unlimitedKmFee}</span>
               </div>
             )}
 

@@ -352,10 +352,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.agePlaceholder': 'Mindestens {age} Jahre',
     'bookingPage.additionalNotes': 'Zusätzliche Anmerkungen',
     'bookingPage.notesPlaceholder': 'Besondere Wünsche oder Anmerkungen...',
-    'bookingPage.unlimitedKm': 'Unbegrenzte Kilometer',
-    'bookingPage.unlimitedKmDesc': 'Upgrade von 200 km/Tag auf unbegrenzte Kilometer für nur EUR 15/Tag',
-    'bookingPage.unlimitedKmTooltipTitle': 'Kilometerpakete',
-    'bookingPage.unlimitedKmTooltip': 'Das Standardpaket umfasst 200 km pro Tag. Jeder zusätzliche Kilometer kostet EUR 0,27. Mit dem Unlimited-Paket können Sie ohne Zusatzkosten beliebig viel fahren!',
     'bookingPage.contractNumber': 'Vertragsnummer (Optional)',
     'bookingPage.contractNumberPlaceholder': 'Z.B.: CORP-2024-1234',
     'bookingPage.contractTooltipTitle': 'Für Geschäftskunden',
@@ -672,9 +668,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.additionalFees': 'Zusätzliche Gebühren für Vermietungen konfigurieren',
     'admin.cleaningFee': 'Reinigungsgebühr',
     'admin.cleaningFeeDesc': 'Einmalige Gebühr für Fahrzeugvorbereitung und Reinigung',
-    'admin.unlimitedKmFee': 'Unbegrenzte Kilometer Gebühr (pro Tag)',
-    'admin.unlimitedKmFeeDesc': 'Tagesgebühr für unbegrenztes Kilometerpaket',
-    'admin.perDayShort': 'pro Tag',
 
     // Mobile Menu
     'menu.title': 'Menü',
@@ -1054,10 +1047,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.agePlaceholder': 'Minimum {age} years',
     'bookingPage.additionalNotes': 'Additional Notes',
     'bookingPage.notesPlaceholder': 'Any special requests or notes...',
-    'bookingPage.unlimitedKm': 'Unlimited Kilometers',
-    'bookingPage.unlimitedKmDesc': 'Upgrade from 200 km/day to unlimited kilometers for only EUR 15/day',
-    'bookingPage.unlimitedKmTooltipTitle': 'Kilometer Packages',
-    'bookingPage.unlimitedKmTooltip': 'The standard package includes 200 km per day. Each additional kilometer costs EUR 0.27. With the Unlimited package, you can drive as much as you want without extra costs!',
     'bookingPage.contractNumber': 'Contract Number (Optional)',
     'bookingPage.contractNumberPlaceholder': 'E.g.: CORP-2024-1234',
     'bookingPage.contractTooltipTitle': 'For Business Customers',
@@ -1374,9 +1363,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.additionalFees': 'Configure additional fees for rentals',
     'admin.cleaningFee': 'Cleaning Fee',
     'admin.cleaningFeeDesc': 'One-time fee charged for vehicle preparation and cleaning',
-    'admin.unlimitedKmFee': 'Unlimited Kilometers Fee (per day)',
-    'admin.unlimitedKmFeeDesc': 'Daily fee for unlimited kilometers package',
-    'admin.perDayShort': 'per day',
 
     // Mobile Menu
     'menu.title': 'Menu',
@@ -1773,9 +1759,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.additionalFees': 'Configurer les frais supplémentaires pour les locations',
     'admin.cleaningFee': 'Frais de nettoyage',
     'admin.cleaningFeeDesc': 'Frais uniques pour la préparation et le nettoyage du véhicule',
-    'admin.unlimitedKmFee': 'Frais kilométrage illimité (par jour)',
-    'admin.unlimitedKmFeeDesc': 'Frais quotidiens pour le forfait kilométrage illimité',
-    'admin.perDayShort': 'par jour',
 
     // Vehicle Categories
     'category.Economy': 'Economique',
@@ -2462,9 +2445,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.additionalFees': 'Configura le tariffe aggiuntive per i noleggi',
     'admin.cleaningFee': 'Tariffa pulizia',
     'admin.cleaningFeeDesc': 'Tariffa unica per la preparazione e pulizia del veicolo',
-    'admin.unlimitedKmFee': 'Tariffa chilometraggio illimitato (al giorno)',
-    'admin.unlimitedKmFeeDesc': 'Tariffa giornaliera per il pacchetto chilometraggio illimitato',
-    'admin.perDayShort': 'al giorno',
 
     // Vehicle Categories
     'category.Economy': 'Economico',
@@ -3150,9 +3130,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.additionalFees': 'Configurar tarifas adicionales para alquileres',
     'admin.cleaningFee': 'Tarifa de limpieza',
     'admin.cleaningFeeDesc': 'Tarifa única por preparación y limpieza del vehículo',
-    'admin.unlimitedKmFee': 'Tarifa kilómetros ilimitados (por día)',
-    'admin.unlimitedKmFeeDesc': 'Tarifa diaria para el paquete de kilómetros ilimitados',
-    'admin.perDayShort': 'por día',
 
     // Vehicle Categories
     'category.Economy': 'Económico',
@@ -3821,10 +3798,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.agePlaceholder': 'Minim {age} ani',
     'bookingPage.additionalNotes': 'Notițe Adiționale',
     'bookingPage.notesPlaceholder': 'Cerințe speciale sau notițe...',
-    'bookingPage.unlimitedKm': 'Kilometri Nelimitați',
-    'bookingPage.unlimitedKmDesc': 'Upgrade de la 200 km/zi la kilometri nelimitați pentru doar EUR 15/zi',
-    'bookingPage.unlimitedKmTooltipTitle': 'Pachete Kilometri',
-    'bookingPage.unlimitedKmTooltip': 'Pachetul standard include 200 km pe zi. Fiecare kilometru suplimentar costă EUR 0,27. Cu pachetul Nelimitat, poți conduce cât dorești fără costuri suplimentare!',
     'bookingPage.contractNumber': 'Număr Contract (Opțional)',
     'bookingPage.contractNumberPlaceholder': 'Ex.: CORP-2024-1234',
     'bookingPage.contractTooltipTitle': 'Pentru Clienți Corporate',
@@ -4143,9 +4116,6 @@ export const translations: Record<Language, Record<string, string>> = {
     'admin.additionalFees': 'Configurează taxe adiționale pentru închirieri',
     'admin.cleaningFee': 'Taxă Curățenie',
     'admin.cleaningFeeDesc': 'Taxă unică pentru pregătirea și curățarea vehiculului',
-    'admin.unlimitedKmFee': 'Taxă Kilometri Nelimitați (pe zi)',
-    'admin.unlimitedKmFeeDesc': 'Taxă zilnică pentru pachetul de kilometri nelimitați',
-    'admin.perDayShort': 'pe zi',
     'admin.question': 'Întrebare',
     'admin.answer': 'Răspuns',
     'admin.companyInfo': 'Informații Companie',

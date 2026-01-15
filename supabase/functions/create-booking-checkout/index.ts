@@ -33,7 +33,6 @@ interface BookingData {
   return_location_address: string | null;
   pickup_fee: number;
   return_fee: number;
-  unlimited_kilometers: boolean;
   contract_number: string | null;
   notes: string | null;
   language: string;
@@ -43,7 +42,6 @@ interface BookingData {
   rental_cost: number;
   cleaning_fee: number;
   location_fees: number;
-  unlimited_km_fee: number;
   after_hours_fee: number;
   total_amount: number;
   success_url: string;
@@ -100,19 +98,16 @@ Deno.serve(async (req: Request) => {
     const { data: pricingSettings } = await supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['cleaning_fee', 'unlimited_km_fee']);
+      .in('key', ['cleaning_fee']);
 
     const dbCleaningFee = pricingSettings?.find(s => s.key === 'cleaning_fee')?.value?.amount || 7;
-    const dbUnlimitedKmFeePerDay = pricingSettings?.find(s => s.key === 'unlimited_km_fee')?.value?.amount_per_day || 15;
 
     const serverCleaningFee = dbCleaningFee;
-    const serverUnlimitedKmFee = bookingData.unlimited_kilometers ? dbUnlimitedKmFeePerDay * bookingData.rental_days : 0;
 
     const serverTotal = (bookingData.rental_days * vehicle.price_per_day) +
       serverCleaningFee +
       bookingData.location_fees +
-      bookingData.after_hours_fee +
-      serverUnlimitedKmFee;
+      bookingData.after_hours_fee;
 
     if (Math.abs(bookingData.total_amount - serverTotal) > 1) {
       console.warn(`Total mismatch: client ${bookingData.total_amount}, server ${serverTotal}`);
@@ -177,20 +172,6 @@ Deno.serve(async (req: Request) => {
         });
       }
 
-      if (serverUnlimitedKmFee > 0) {
-        lineItems.push({
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: 'Unlimited Kilometers',
-              description: `${bookingData.rental_days} ${bookingData.rental_days === 1 ? 'Day' : 'Days'} Unlimited KM`,
-            },
-            unit_amount: Math.round((serverUnlimitedKmFee / bookingData.rental_days) * 100),
-          },
-          quantity: bookingData.rental_days,
-        });
-      }
-
       if (bookingData.after_hours_fee > 0) {
         lineItems.push({
           price_data: {
@@ -224,7 +205,6 @@ Deno.serve(async (req: Request) => {
       return_location_address: bookingData.return_location_address || '',
       pickup_fee: String(bookingData.pickup_fee),
       return_fee: String(bookingData.return_fee),
-      unlimited_kilometers: String(bookingData.unlimited_kilometers),
       contract_number: bookingData.contract_number || '',
       notes: (bookingData.notes || '').substring(0, 400),
       language: bookingData.language,
@@ -235,7 +215,6 @@ Deno.serve(async (req: Request) => {
       rental_cost: String(bookingData.rental_days * vehicle.price_per_day),
       cleaning_fee: String(serverCleaningFee),
       location_fees: String(bookingData.location_fees),
-      unlimited_km_fee: String(serverUnlimitedKmFee),
       after_hours_fee: String(bookingData.after_hours_fee),
       total_amount: String(serverTotal),
       deposit_amount: String(depositAmount),

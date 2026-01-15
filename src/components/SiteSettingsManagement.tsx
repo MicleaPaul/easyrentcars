@@ -141,16 +141,6 @@ export function SiteSettingsManagement() {
     });
   }
 
-  function updateUnlimitedKmFee(value: number) {
-    setSettings({
-      ...settings,
-      unlimited_km_fee: {
-        ...settings.unlimited_km_fee,
-        amount_per_day: value,
-      },
-    });
-  }
-
   if (loading) {
     return (
       <div className="text-center text-[#9AA0A6] py-12">
@@ -304,30 +294,6 @@ export function SiteSettingsManagement() {
                     onChange={(e) => updateCleaningFee(Number(e.target.value))}
                     className="w-32 bg-[#0B0C0F] text-[#F5F7FA] px-4 py-2 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
                   />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-[#D4AF37]/5 border border-[#D4AF37]/20 rounded-lg">
-            <div className="flex items-start gap-3">
-              <DollarSign className="w-5 h-5 text-[#D4AF37] mt-0.5" />
-              <div className="flex-1">
-                <label className="block text-white font-semibold mb-2">{t('admin.unlimitedKmFee')}</label>
-                <p className="text-[#9AA0A6] text-sm mb-3">
-                  {t('admin.unlimitedKmFeeDesc')}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-white">€</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={settings.unlimited_km_fee?.amount_per_day || 15}
-                    onChange={(e) => updateUnlimitedKmFee(Number(e.target.value))}
-                    className="w-32 bg-[#0B0C0F] text-[#F5F7FA] px-4 py-2 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
-                  />
-                  <span className="text-[#9AA0A6] text-sm">{t('admin.perDayShort')}</span>
                 </div>
               </div>
             </div>
