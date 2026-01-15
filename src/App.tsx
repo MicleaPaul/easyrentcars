@@ -13,6 +13,10 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
 import { AGBPage } from './pages/AGBPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { RentACarGrazPage } from './pages/RentACarGrazPage';
+import { CarRentalGrazPage } from './pages/CarRentalGrazPage';
+import { CheapCarRentalGrazPage } from './pages/CheapCarRentalGrazPage';
+import { PremiumCarRentalGrazPage } from './pages/PremiumCarRentalGrazPage';
 import { Footer } from './components/Footer';
 import { MobileMenu } from './components/MobileMenu';
 import { StructuredData } from './components/StructuredData';
@@ -161,6 +165,10 @@ function AppContent() {
           <Route path="/booking-success" element={<BookingSuccessPage />} />
           <Route path="/agb" element={<AGBPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/rent-a-car-graz" element={<RentACarGrazPage />} />
+          <Route path="/car-rental-graz" element={<CarRentalGrazPage />} />
+          <Route path="/cheap-car-rental-graz" element={<CheapCarRentalGrazPage />} />
+          <Route path="/premium-car-rental-graz" element={<PremiumCarRentalGrazPage />} />
           <Route
             path="/admin"
             element={

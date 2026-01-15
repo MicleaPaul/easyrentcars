@@ -5,6 +5,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useBooking } from '../contexts/BookingContext';
 import { supabase } from '../lib/supabase';
 import { checkVehicleAvailability } from '../lib/availabilityChecker';
+import { SEOHead } from '../components/SEOHead';
+import { ProductSchema } from '../components/ProductSchema';
 
 interface Vehicle {
   id: string;
@@ -147,8 +149,28 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F] pt-20 xs:pt-24 pb-24 lg:pb-16">
-      <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
+    <>
+      <SEOHead
+        title={`${car.brand} ${car.model} ${car.year} - Car Rental Graz | EasyRentCars`}
+        description={`Rent ${car.brand} ${car.model} ${car.year} in Graz. ${car.category} with ${car.seats} seats, ${car.transmission} transmission, ${car.fuel_type}. Starting from EUR${car.price_per_day}/day. Book now!`}
+        ogTitle={`${car.brand} ${car.model} ${car.year} - Available for Rent`}
+        ogDescription={`${car.category} • ${car.seats} seats • ${car.transmission} • EUR${car.price_per_day}/day`}
+        ogImage={car.images[0] || 'https://easyrentcars.rentals/og-image.jpg'}
+        canonicalUrl={`https://easyrentcars.rentals/car/${id}`}
+      />
+      <ProductSchema
+        name={`${car.brand} ${car.model} ${car.year}`}
+        description={`${car.category} rental car with ${car.seats} seats, ${car.transmission} transmission, and ${car.fuel_type}. Perfect for rent in Graz, Austria.`}
+        image={car.images}
+        brand={car.brand}
+        model={car.model}
+        year={car.year}
+        price={car.price_per_day}
+        availability="InStock"
+        url={`https://easyrentcars.rentals/car/${id}`}
+      />
+      <div className="min-h-screen bg-[#0B0C0F] pt-20 xs:pt-24 pb-24 lg:pb-16">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors mb-5 xs:mb-8 group min-h-touch touch-manipulation active:opacity-70"
@@ -406,6 +428,7 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

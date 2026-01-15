@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { SEOHead } from '../components/SEOHead';
 
 export function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -59,7 +60,13 @@ export function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F] flex items-center justify-center p-6">
+    <>
+      <SEOHead
+        title="Verify Email - EasyRentCars"
+        description="Verify your email address to complete your car rental booking in Graz."
+        noindex={true}
+      />
+      <div className="min-h-screen bg-[#0B0C0F] flex items-center justify-center p-6">
       <div className="card-luxury p-8 sm:p-12 max-w-lg w-full text-center">
         {status === 'verifying' && (
           <>
@@ -114,6 +121,7 @@ export function VerifyEmailPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

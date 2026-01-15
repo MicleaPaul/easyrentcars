@@ -87,6 +87,7 @@ function getOrganizationSchema() {
     priceRange: '€49-€98',
     currenciesAccepted: 'EUR',
     paymentAccepted: 'Cash, Credit Card, Debit Card',
+    acceptsReservations: true,
     areaServed: [
       {
         '@type': 'City',

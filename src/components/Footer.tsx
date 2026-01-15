@@ -111,6 +111,10 @@ export function Footer() {
               {[
                 { key: 'home', label: t('footer.home'), action: () => navigate('/') },
                 { key: 'fleet', label: t('footer.fleet'), action: () => navigate('/') },
+                { key: 'rentacar', label: 'Rent a Car Graz', action: () => navigate('/rent-a-car-graz') },
+                { key: 'carrental', label: 'Car Rental Graz', action: () => navigate('/car-rental-graz') },
+                { key: 'cheap', label: 'Cheap Car Rental', action: () => navigate('/cheap-car-rental-graz') },
+                { key: 'premium', label: 'Premium Car Rental', action: () => navigate('/premium-car-rental-graz') },
                 { key: 'faq', label: t('footer.faq'), action: () => navigate('/') },
                 { key: 'terms', label: t('footer.terms'), action: () => navigate('/agb') },
                 { key: 'contact', label: t('footer.contact'), action: () => navigate('/') },

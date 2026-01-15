@@ -2,13 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import { Home, Car } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Logo } from '../components/Logo';
+import { SEOHead } from '../components/SEOHead';
 
 export function NotFoundPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F] flex items-center justify-center px-6">
+    <>
+      <SEOHead
+        title="Page Not Found - 404 | EasyRentCars"
+        description="The page you're looking for doesn't exist. Browse our car rental fleet in Graz or return to the homepage."
+        noindex={true}
+      />
+      <div className="min-h-screen bg-[#0B0C0F] flex items-center justify-center px-6">
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
           <div className="flex justify-center mb-8">
@@ -58,6 +65,7 @@ export function NotFoundPage() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

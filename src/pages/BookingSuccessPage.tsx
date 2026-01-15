@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, Car, Calendar, MapPin, User, Mail, Phone, Download, Home, Clock, CreditCard, Banknote, FileText, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
+import { SEOHead } from '../components/SEOHead';
 
 interface BookingDetails {
   id: string;
@@ -291,8 +292,14 @@ export function BookingSuccessPage() {
   const remainingAmount = booking.remaining_amount || 0;
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[900px]">
+    <>
+      <SEOHead
+        title="Booking Confirmed - EasyRentCars"
+        description="Your car rental booking in Graz has been confirmed. Check your email for booking details."
+        noindex={true}
+      />
+      <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[900px]">
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
             <CheckCircle className="w-10 h-10 text-green-500" />
@@ -535,6 +542,7 @@ export function BookingSuccessPage() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

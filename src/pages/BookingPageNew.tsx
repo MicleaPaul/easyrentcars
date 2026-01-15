@@ -10,6 +10,7 @@ import { checkVehicleAvailability } from '../lib/availabilityChecker';
 import { BookingSuccessModal } from '../components/BookingSuccessModal';
 import { ErrorModal } from '../components/ErrorModal';
 import { WarningModal } from '../components/WarningModal';
+import { SEOHead } from '../components/SEOHead';
 
 interface Vehicle {
   id: string;
@@ -273,8 +274,14 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
+    <>
+      <SEOHead
+        title="Complete Your Booking - Car Rental Graz | EasyRentCars"
+        description="Complete your car rental booking in Graz. Secure payment and instant confirmation. Book your vehicle with EasyRentCars today."
+        noindex={true}
+      />
+      <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
+        <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors mb-8 group"
@@ -726,6 +733,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
           }}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

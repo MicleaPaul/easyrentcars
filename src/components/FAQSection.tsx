@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
+import { FAQSchema } from './FAQSchema';
 
 interface FAQ {
   id: string;
@@ -143,9 +144,16 @@ export function FAQSection() {
     );
   }
 
+  const faqsForSchema = faqs.map(faq => ({
+    question: getQuestion(faq),
+    answer: getAnswer(faq)
+  }));
+
   return (
-    <section id="faq" className="py-12 xs:py-16 sm:py-20 lg:py-32 bg-[#0B0C0F]">
-      <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
+    <>
+      <FAQSchema faqs={faqsForSchema} />
+      <section id="faq" className="py-12 xs:py-16 sm:py-20 lg:py-32 bg-[#0B0C0F]">
+        <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
         <div className="text-center mb-8 xs:mb-10 sm:mb-16">
           <div className="flex items-center justify-center gap-2 xs:gap-3 mb-4 xs:mb-6">
             <HelpCircle className="w-7 xs:w-8 h-7 xs:h-8 sm:w-10 sm:h-10 text-[#D4AF37]" />
@@ -251,6 +259,7 @@ export function FAQSection() {
           </p>
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }

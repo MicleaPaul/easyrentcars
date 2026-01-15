@@ -3,16 +3,51 @@
 
   <url>
     <loc>https://easyrentcars.rentals/</loc>
-    <lastmod>2025-01-12</lastmod>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://easyrentcars.rentals/agb</loc>
-    <lastmod>2025-01-12</lastmod>
+    <loc>https://easyrentcars.rentals/rent-a-car-graz</loc>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://easyrentcars.rentals/car-rental-graz</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://easyrentcars.rentals/cheap-car-rental-graz</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://easyrentcars.rentals/premium-car-rental-graz</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://easyrentcars.rentals/agb</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://easyrentcars.rentals/privacy-policy</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 
 </urlset>
