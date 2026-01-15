@@ -221,11 +221,11 @@ export function FleetSection() {
                 <div className="grid grid-cols-2 gap-2 xs:gap-3 mb-4 xs:mb-6 text-xs xs:text-sm">
                   <div className="flex items-center gap-1.5 xs:gap-2 text-[#9AA0A6]">
                     <Settings className="w-3.5 xs:w-4 h-3.5 xs:h-4 text-[#D4AF37] flex-shrink-0" />
-                    <span className="truncate">{car.transmission}</span>
+                    <span className="truncate">{t(`transmission.${car.transmission}`)}</span>
                   </div>
                   <div className="flex items-center gap-1.5 xs:gap-2 text-[#9AA0A6]">
                     <Users className="w-3.5 xs:w-4 h-3.5 xs:h-4 text-[#D4AF37] flex-shrink-0" />
-                    <span>Age: {car.minimum_age}+</span>
+                    <span>{t('fleet.minAge')}: {car.minimum_age}+</span>
                   </div>
                   <div className="flex items-center gap-1.5 xs:gap-2 text-[#9AA0A6]">
                     <Users className="w-3.5 xs:w-4 h-3.5 xs:h-4 text-[#D4AF37] flex-shrink-0" />
@@ -274,7 +274,7 @@ export function FleetSection() {
                     className="flex-1 xs:flex-none px-4 xs:px-6 py-2.5 xs:py-3 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-bold rounded-lg hover:shadow-xl hover:glow-gold transition-all text-xs xs:text-sm uppercase tracking-wide min-h-touch touch-manipulation active:scale-95 flex items-center justify-center gap-1.5 xs:gap-2"
                   >
                     <span className="hidden xs:inline">{t('fleet.reserve')}</span>
-                    <span className="xs:hidden">Book</span>
+                    <span className="xs:hidden">{t('fleet.reserve')}</span>
                     <ArrowRight className="w-3.5 xs:w-4 h-3.5 xs:h-4" />
                   </button>
                 </div>

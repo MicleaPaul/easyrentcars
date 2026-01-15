@@ -80,6 +80,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.Premium': 'Premium',
     'category.Luxury': 'Luxus',
 
+    // Transmission Types
+    'transmission.Manual': 'Manuell',
+    'transmission.Automatic': 'Automatik',
+
     // Fleet Section
     'fleet.title': 'Unsere Premium',
     'fleet.titleSecond': 'Flotte',
@@ -94,6 +98,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'fleet.featured': 'Empfohlen',
     'fleet.reserve': 'Reservieren',
     'fleet.seats': 'Sitze',
+    'fleet.minAge': 'Alter',
     'fleet.bags': 'Taschen',
     'fleet.rental': 'Miete',
     'fleet.locationFee': 'Standortgebühr',
@@ -777,6 +782,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.Premium': 'Premium',
     'category.Luxury': 'Luxury',
 
+    // Transmission Types
+    'transmission.Manual': 'Manual',
+    'transmission.Automatic': 'Automatic',
+
     // Fleet Section
     'fleet.title': 'Our Premium',
     'fleet.titleSecond': 'Fleet',
@@ -791,6 +800,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'fleet.featured': 'Featured',
     'fleet.reserve': 'Reserve',
     'fleet.seats': 'Seats',
+    'fleet.minAge': 'Age',
     'fleet.bags': 'Bags',
     'fleet.rental': 'rental',
     'fleet.locationFee': 'location fee',
@@ -1773,6 +1783,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.Premium': 'Premium',
     'category.Luxury': 'Luxe',
 
+    // Transmission Types
+    'transmission.Manual': 'Manuelle',
+    'transmission.Automatic': 'Automatique',
+
     // Fleet Section
     'fleet.title': 'Notre Flotte',
     'fleet.titleSecond': 'Premium',
@@ -1787,6 +1801,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'fleet.featured': 'En vedette',
     'fleet.reserve': 'Reserver',
     'fleet.seats': 'Places',
+    'fleet.minAge': 'Age',
     'fleet.bags': 'Bagages',
 
     // Benefits Section
@@ -2457,6 +2472,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.Premium': 'Premium',
     'category.Luxury': 'Lusso',
 
+    // Transmission Types
+    'transmission.Manual': 'Manuale',
+    'transmission.Automatic': 'Automatico',
+
     // Fleet Section
     'fleet.title': 'La Nostra Flotta',
     'fleet.titleSecond': 'Premium',
@@ -2471,6 +2490,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'fleet.featured': 'In evidenza',
     'fleet.reserve': 'Prenota',
     'fleet.seats': 'Posti',
+    'fleet.minAge': 'Eta',
     'fleet.bags': 'Bagagli',
 
     // Benefits Section
@@ -3140,6 +3160,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.Premium': 'Premium',
     'category.Luxury': 'Lujo',
 
+    // Transmission Types
+    'transmission.Manual': 'Manual',
+    'transmission.Automatic': 'Automatico',
+
     // Fleet Section
     'fleet.title': 'Nuestra Flota',
     'fleet.titleSecond': 'Premium',
@@ -3154,6 +3178,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'fleet.featured': 'Destacado',
     'fleet.reserve': 'Reservar',
     'fleet.seats': 'Asientos',
+    'fleet.minAge': 'Edad',
     'fleet.bags': 'Maletas',
 
     // Benefits Section
@@ -3524,6 +3549,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.Premium': 'Premium',
     'category.Luxury': 'Lux',
 
+    // Transmission Types
+    'transmission.Manual': 'Manuala',
+    'transmission.Automatic': 'Automata',
+
     // Fleet Section
     'fleet.title': 'Flota Noastră',
     'fleet.titleSecond': 'Premium',
@@ -3538,6 +3567,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'fleet.featured': 'Recomandate',
     'fleet.reserve': 'Rezervă',
     'fleet.seats': 'Locuri',
+    'fleet.minAge': 'Varsta',
     'fleet.bags': 'Genți',
     'fleet.rental': 'închiriere',
     'fleet.locationFee': 'taxă locație',
