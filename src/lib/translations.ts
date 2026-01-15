@@ -385,6 +385,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.duration': 'Dauer',
     'bookingPage.day': 'Tag',
     'bookingPage.days': 'Tage',
+    'bookingPage.extraDayNotice': 'Die Rueckgabezeit liegt nach der Abholzeit - ein zusaetzlicher Tag wird berechnet',
     'bookingPage.rental': 'Miete',
     'bookingPage.total': 'Gesamt',
     'bookingPage.pickupLocation': 'Abholort',
@@ -1083,6 +1084,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.duration': 'Duration',
     'bookingPage.day': 'Day',
     'bookingPage.days': 'Days',
+    'bookingPage.extraDayNotice': 'Return time exceeds pickup time - an additional day is charged',
     'bookingPage.rental': 'Rental',
     'bookingPage.total': 'Total',
     'bookingPage.pickupLocation': 'Pickup Location',
@@ -2052,6 +2054,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.duration': 'Duree',
     'bookingPage.day': 'Jour',
     'bookingPage.days': 'Jours',
+    'bookingPage.extraDayNotice': 'L\'heure de retour depasse l\'heure de prise en charge - un jour supplementaire est facture',
     'bookingPage.rental': 'Location',
     'bookingPage.total': 'Total',
 
@@ -2736,6 +2739,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.duration': 'Durata',
     'bookingPage.day': 'Giorno',
     'bookingPage.days': 'Giorni',
+    'bookingPage.extraDayNotice': 'L\'orario di restituzione supera l\'orario di ritiro - viene addebitato un giorno aggiuntivo',
     'bookingPage.rental': 'Noleggio',
     'bookingPage.total': 'Totale',
 
@@ -3420,6 +3424,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.duration': 'Duración',
     'bookingPage.day': 'Día',
     'bookingPage.days': 'Días',
+    'bookingPage.extraDayNotice': 'La hora de devolucion excede la hora de recogida - se cobra un dia adicional',
     'bookingPage.rental': 'Alquiler',
     'bookingPage.total': 'Total',
 
@@ -3834,6 +3839,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.duration': 'Durată',
     'bookingPage.day': 'Zi',
     'bookingPage.days': 'Zile',
+    'bookingPage.extraDayNotice': 'Ora de returnare depaseste ora de preluare - se taxeaza o zi suplimentara',
     'bookingPage.rental': 'Închiriere',
     'bookingPage.total': 'Total',
     'bookingPage.pickupLocation': 'Locație Ridicare',

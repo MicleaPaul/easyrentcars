@@ -113,13 +113,23 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   };
 
   const calculateDays = () => {
-    if (!pickupDate || !returnDate) return 0;
+    if (!pickupDate || !returnDate) return { days: 0, hasExtraDay: false };
     const start = new Date(pickupDate);
     const end = new Date(returnDate);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const baseDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+
+    const [pickupHour, pickupMinute] = pickupTime.split(':').map(Number);
+    const [returnHour, returnMinute] = returnTime.split(':').map(Number);
+    const pickupMinutes = pickupHour * 60 + pickupMinute;
+    const returnMinutes = returnHour * 60 + returnMinute;
+
+    const hasExtraDay = returnMinutes > pickupMinutes;
+    const totalDays = hasExtraDay ? baseDays + 1 : baseDays;
+
+    return { days: totalDays, hasExtraDay };
   };
 
-  const days = calculateDays();
+  const { days, hasExtraDay } = calculateDays();
   const locationFees = getTotalLocationFees();
   const afterHoursFee = calculateAfterHoursFee();
   const cleaningFeeAmount = settings.cleaning_fee?.amount || 7;
@@ -692,6 +702,14 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                 <div>
                   <p className="text-xs text-[#9AA0A6] mb-1">{t('bookingPage.duration')}</p>
                   <p className="text-white font-semibold">{days} {days === 1 ? t('bookingPage.day') : t('bookingPage.days')}</p>
+                  {hasExtraDay && (
+                    <div className="mt-2 p-2 rounded bg-amber-500/10 border border-amber-500/20">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-300">{t('bookingPage.extraDayNotice')}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
