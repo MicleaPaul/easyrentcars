@@ -142,7 +142,7 @@ export function FleetSection() {
         <div className="flex flex-col items-start justify-between mb-8 xs:mb-10 sm:mb-16 gap-5 xs:gap-6">
           <div>
             <h2 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 xs:mb-6">
-              {t('fleet.title')} <span className="text-gradient">{t('fleet.titleSecond')}</span>
+              {t('fleet.title')} <span className="text-gradient text-[inherit]">{t('fleet.titleSecond')}</span>
             </h2>
             <div className="w-16 xs:w-20 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37]" />
           </div>
