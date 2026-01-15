@@ -138,6 +138,9 @@ function getOrganizationSchema() {
             '@type': 'Product',
             name: 'Economy Car Rental',
             description: 'Affordable economy cars starting from €49/day',
+            image: [
+              'https://easyrentcars.rentals/og-image.jpg'
+            ],
             offers: {
               '@type': 'Offer',
               price: '49',
@@ -153,6 +156,9 @@ function getOrganizationSchema() {
             '@type': 'Product',
             name: 'Premium Car Rental',
             description: 'Luxury premium vehicles for a superior driving experience',
+            image: [
+              'https://easyrentcars.rentals/twitter-image.jpg'
+            ],
             offers: {
               '@type': 'Offer',
               price: '89',
