@@ -1,5 +1,7 @@
-import { Gauge, MapPin, Truck, Clock } from 'lucide-react';
+import { Gauge, MapPin, Truck, Clock, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+
+const GOOGLE_REVIEWS_URL = 'https://www.google.com/maps/place/EasyRentGraz/@47.0517643,15.4132833,17z/data=!4m8!3m7!1s0x203e8878e7040753:0x71316d320d711024!8m2!3d47.0517644!4d15.4181542!9m1!1b1!16s%2Fg%2F11vrlj0yvw?entry=ttu';
 
 export function BenefitsSection() {
   const { t } = useLanguage();
@@ -39,15 +41,21 @@ export function BenefitsSection() {
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37] mx-auto mb-8" />
 
-          <div className="max-w-4xl mx-auto text-[#9AA0A6] leading-relaxed space-y-4">
-            <p>
-              {t('benefits.description1')}
-              {' '}{t('benefits.description2')}
+          <div className="max-w-4xl mx-auto text-[#9AA0A6] leading-relaxed">
+            <p className="text-lg sm:text-xl mb-4">
+              {t('benefits.description')}
             </p>
-            <p>
-              {t('benefits.description3')}
-              {' '}{t('benefits.description4')}
-            </p>
+            <a
+              href={GOOGLE_REVIEWS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-[#D4AF37] hover:text-[#F4D03F] transition-colors font-medium group"
+            >
+              <span className="border-b border-[#D4AF37] group-hover:border-[#F4D03F]">
+                {t('benefits.reviewsLink')}
+              </span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
         </div>
 
