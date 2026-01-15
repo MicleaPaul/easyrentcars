@@ -210,7 +210,7 @@ export function FleetSection() {
 
               <div className="p-4 xs:p-5 sm:p-6">
                 <div className="mb-3 xs:mb-4">
-                  <p className="text-[#D4AF37] text-[10px] xs:text-xs font-semibold tracking-widest uppercase mb-1">
+                  <p className="text-[#D4AF37] text-[10px] xs:text-xs font-semibold tracking-widest uppercase mb-1 xs:mb-2">
                     {car.category}
                   </p>
                   <h3 className="text-xl xs:text-2xl font-bold text-white">
