@@ -37,7 +37,7 @@ export function BenefitsSection() {
       <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[1440px]">
         <div className="mb-12 sm:mb-16 text-center">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            {t('benefits.title')} <span className="text-gradient">{t('benefits.titleSecond')}</span>
+            {t('benefits.title')} <span className="highlight-gold">{t('benefits.titleSecond')}</span>
           </h2>
           <div className="w-20 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37] mx-auto mb-8" />
 
