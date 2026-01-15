@@ -147,12 +147,12 @@ export function FleetSection() {
             <div className="w-16 xs:w-20 h-1 bg-gradient-to-r from-[#D4AF37] via-[#F4D03F] to-[#D4AF37]" />
           </div>
 
-          <div className="flex flex-wrap gap-2 xs:gap-3 w-full sm:w-auto">
+          <div className="flex flex-wrap gap-3 xs:gap-4 sm:gap-6 w-full">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 xs:px-5 py-2 xs:py-2.5 rounded-lg font-semibold text-xs xs:text-sm uppercase tracking-wide transition-all min-h-touch touch-manipulation active:scale-95 ${
+                className={`px-4 xs:px-6 sm:px-8 py-3 xs:py-4 sm:py-5 rounded-xl font-bold text-3xl xs:text-4xl sm:text-5xl lg:text-6xl transition-all min-h-touch touch-manipulation active:scale-95 ${
                   selectedCategory === cat
                     ? 'bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black shadow-lg'
                     : 'bg-[#111316] text-[#9AA0A6] border border-[#D4AF37]/20 hover:border-[#D4AF37] hover:text-[#D4AF37]'
