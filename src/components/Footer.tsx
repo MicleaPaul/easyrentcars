@@ -9,18 +9,14 @@ export function Footer() {
   const navigate = useNavigate();
   const { settings } = useSiteSettings();
 
-  const contactInfo = settings.contact_info || {
-    phone: '+43 664 1584950',
-    email: 'info@easyrentcars.rentals',
-    address: {
-      street: 'Alte Poststrasse 152',
-      city: 'Graz',
-      postalCode: '8020',
-      country: 'Austria'
-    }
-  };
+  const contactInfo = settings.contact_info || {};
+  const address = contactInfo.address || {};
 
-  const phoneForHref = contactInfo.phone.replace(/\s/g, '');
+  const phoneForHref = contactInfo.phone ? contactInfo.phone.replace(/\s/g, '') : '';
+
+  const hasAddress = address.street || address.postalCode || address.city || address.country;
+  const hasPhone = !!contactInfo.phone;
+  const hasEmail = !!contactInfo.email;
 
   return (
     <footer
@@ -55,46 +51,55 @@ export function Footer() {
               itemScope
               itemType="https://schema.org/PostalAddress"
             >
-              <div className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB]">
-                <MapPin className="w-4 xs:w-5 h-4 xs:h-5 text-[#F6C90E] flex-shrink-0 mt-0.5 xs:mt-1" />
-                <div className="min-w-0">
-                  <p className="font-semibold text-white text-sm xs:text-base">{t('footer.address')}</p>
-                  <p className="text-xs xs:text-sm">
-                    <span itemProp="streetAddress">{contactInfo.address.street}</span>,{' '}
-                    <span itemProp="postalCode">{contactInfo.address.postalCode}</span>{' '}
-                    <span itemProp="addressLocality">{contactInfo.address.city}</span>,{' '}
-                    <span itemProp="addressCountry">{contactInfo.address.country}</span>
-                  </p>
+              {hasAddress && (
+                <div className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB]">
+                  <MapPin className="w-4 xs:w-5 h-4 xs:h-5 text-[#F6C90E] flex-shrink-0 mt-0.5 xs:mt-1" />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white text-sm xs:text-base">{t('footer.address')}</p>
+                    <p className="text-xs xs:text-sm">
+                      {address.street && <span itemProp="streetAddress">{address.street}</span>}
+                      {address.street && (address.postalCode || address.city) && ', '}
+                      {address.postalCode && <span itemProp="postalCode">{address.postalCode}</span>}
+                      {address.postalCode && address.city && ' '}
+                      {address.city && <span itemProp="addressLocality">{address.city}</span>}
+                      {(address.street || address.postalCode || address.city) && address.country && ', '}
+                      {address.country && <span itemProp="addressCountry">{address.country}</span>}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <a
-                href={`tel:${phoneForHref}`}
-                className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB] p-1.5 -m-1.5 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
-                itemProp="telephone"
-              >
-                <Phone className="w-4 xs:w-5 h-4 xs:h-5 text-[#F6C90E] flex-shrink-0 mt-0.5 xs:mt-1" />
-                <div className="min-w-0">
-                  <p className="font-semibold text-white text-sm xs:text-base">{t('footer.phone')}</p>
-                  <p className="hover:text-[#F6C90E] transition-colors text-xs xs:text-sm">
-                    {contactInfo.phone}
-                  </p>
-                </div>
-              </a>
+              {hasPhone && (
+                <a
+                  href={`tel:${phoneForHref}`}
+                  className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB] p-1.5 -m-1.5 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
+                  itemProp="telephone"
+                >
+                  <Phone className="w-4 xs:w-5 h-4 xs:h-5 text-[#F6C90E] flex-shrink-0 mt-0.5 xs:mt-1" />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white text-sm xs:text-base">{t('footer.phone')}</p>
+                    <p className="hover:text-[#F6C90E] transition-colors text-xs xs:text-sm">
+                      {contactInfo.phone}
+                    </p>
+                  </div>
+                </a>
+              )}
 
-              <a
-                href={`mailto:${contactInfo.email}`}
-                className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB] p-1.5 -m-1.5 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
-                itemProp="email"
-              >
-                <Mail className="w-4 xs:w-5 h-4 xs:h-5 text-[#F6C90E] flex-shrink-0 mt-0.5 xs:mt-1" />
-                <div className="min-w-0">
-                  <p className="font-semibold text-white text-sm xs:text-base">{t('footer.email')}</p>
-                  <p className="hover:text-[#F6C90E] transition-colors text-xs xs:text-sm break-all">
-                    {contactInfo.email}
-                  </p>
-                </div>
-              </a>
+              {hasEmail && (
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className="flex items-start gap-2.5 xs:gap-3 text-[#B8B9BB] p-1.5 -m-1.5 rounded-lg active:bg-white/5 transition-colors touch-manipulation"
+                  itemProp="email"
+                >
+                  <Mail className="w-4 xs:w-5 h-4 xs:h-5 text-[#F6C90E] flex-shrink-0 mt-0.5 xs:mt-1" />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white text-sm xs:text-base">{t('footer.email')}</p>
+                    <p className="hover:text-[#F6C90E] transition-colors text-xs xs:text-sm break-all">
+                      {contactInfo.email}
+                    </p>
+                  </div>
+                </a>
+              )}
             </div>
           </div>
 

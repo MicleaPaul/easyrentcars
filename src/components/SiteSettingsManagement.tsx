@@ -386,20 +386,36 @@ export function SiteSettingsManagement() {
                 {t('admin.address')}
               </div>
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <input
                 type="text"
-                value={settings.contact_info?.address?.city || ''}
-                onChange={(e) => updateContactInfo('address.city', e.target.value)}
-                className="bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
-                placeholder={t('admin.city')}
+                value={settings.contact_info?.address?.street || ''}
+                onChange={(e) => updateContactInfo('address.street', e.target.value)}
+                className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
+                placeholder="Alte Poststrasse 152"
               />
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  value={settings.contact_info?.address?.postalCode || ''}
+                  onChange={(e) => updateContactInfo('address.postalCode', e.target.value)}
+                  className="bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
+                  placeholder={t('admin.postalCode')}
+                />
+                <input
+                  type="text"
+                  value={settings.contact_info?.address?.city || ''}
+                  onChange={(e) => updateContactInfo('address.city', e.target.value)}
+                  className="bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
+                  placeholder={t('admin.city')}
+                />
+              </div>
               <input
                 type="text"
-                value={settings.contact_info?.address?.postalCode || ''}
-                onChange={(e) => updateContactInfo('address.postalCode', e.target.value)}
-                className="bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
-                placeholder={t('admin.postalCode')}
+                value={settings.contact_info?.address?.country || ''}
+                onChange={(e) => updateContactInfo('address.country', e.target.value)}
+                className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20"
+                placeholder="Austria"
               />
             </div>
           </div>
