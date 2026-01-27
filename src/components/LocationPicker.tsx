@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { MapPin, Navigation, Info } from 'lucide-react';
 import { LocationData } from '../contexts/BookingContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 interface LocationPickerProps {
   value: LocationData | null;
@@ -9,16 +10,7 @@ interface LocationPickerProps {
   label: string;
 }
 
-const predefinedLocations = [
-  {
-    id: 'headquarters',
-    name: 'Firmensitz',
-    address: 'Hauptstraße 123, 8010 Graz',
-    latitude: 47.0707,
-    longitude: 15.4395,
-    fee: 0,
-    inGraz: true,
-  },
+const staticLocations = [
   {
     id: 'airport',
     name: 'Flughafen',
@@ -41,6 +33,27 @@ const predefinedLocations = [
 
 export function LocationPicker({ value, onChange, label }: LocationPickerProps) {
   const { t } = useLanguage();
+  const { settings } = useSiteSettings();
+
+  const predefinedLocations = useMemo(() => {
+    const contactInfo = settings.contact_info;
+    const headquartersAddress = contactInfo?.address
+      ? `${contactInfo.address.street || ''}, ${contactInfo.address.postalCode} ${contactInfo.address.city}`.trim()
+      : 'Alte Poststraße 286, 8053 Graz';
+
+    return [
+      {
+        id: 'headquarters',
+        name: 'Firmensitz',
+        address: headquartersAddress,
+        latitude: 47.0707,
+        longitude: 15.4395,
+        fee: 0,
+        inGraz: true,
+      },
+      ...staticLocations,
+    ];
+  }, [settings.contact_info]);
   const [selectedType, setSelectedType] = useState<'predefined' | 'custom'>(
     value?.isCustom ? 'custom' : 'predefined'
   );
