@@ -25,7 +25,7 @@ const predefinedLocations = [
     address: 'Flughafenstraße 51, 8073 Feldkirchen bei Graz',
     latitude: 46.9911,
     longitude: 15.4396,
-    fee: 0,
+    fee: 20,
     inGraz: true,
   },
   {
