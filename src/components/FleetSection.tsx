@@ -35,7 +35,36 @@ export function FleetSection() {
   const [showKmTooltip, setShowKmTooltip] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchVehicles() {
+      try {
+        const { data, error } = await supabase
+          .from('vehicles')
+          .select('*')
+          .eq('status', 'available')
+          .order('price_per_day', { ascending: true });
+
+        if (cancelled) return;
+
+        if (error) throw error;
+        setVehicles(data || []);
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Error fetching vehicles:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
     fetchVehicles();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -45,29 +74,65 @@ export function FleetSection() {
   }, [category]);
 
   useEffect(() => {
-    if (pickupDate && returnDate) {
-      checkAvailability(pickupDate, returnDate);
-    } else {
-      setAvailableVehicles([]);
+    let cancelled = false;
+
+    async function performAvailabilityCheck() {
+      if (!pickupDate || !returnDate) {
+        setAvailableVehicles([]);
+        return;
+      }
+
+      try {
+        const pickupISO = `${pickupDate}T00:00:00Z`;
+        const dropoffISO = `${returnDate}T23:59:59Z`;
+
+        const { data: bookings, error: bookingsError } = await supabase
+          .from('bookings')
+          .select('vehicle_id')
+          .in('booking_status', ['Confirmed', 'Active', 'confirmed', 'active'])
+          .lt('pickup_date', dropoffISO)
+          .gt('return_date', pickupISO);
+
+        if (cancelled) return;
+
+        if (bookingsError) throw bookingsError;
+
+        const { data: blocks, error: blocksError } = await supabase
+          .from('vehicle_blocks')
+          .select('vehicle_id')
+          .lt('blocked_from', dropoffISO)
+          .gt('blocked_until', pickupISO);
+
+        if (cancelled) return;
+
+        if (blocksError) throw blocksError;
+
+        const unavailableVehicleIds = new Set([
+          ...(bookings || []).map(b => b.vehicle_id),
+          ...(blocks || []).map(b => b.vehicle_id)
+        ]);
+
+        const available = vehicles
+          .filter(v => !unavailableVehicleIds.has(v.id))
+          .map(v => v.id);
+
+        if (!cancelled) {
+          setAvailableVehicles(available);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Error checking availability:', error);
+          setAvailableVehicles([]);
+        }
+      }
     }
+
+    performAvailabilityCheck();
+
+    return () => {
+      cancelled = true;
+    };
   }, [pickupDate, returnDate, vehicles]);
-
-  async function fetchVehicles() {
-    try {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('*')
-        .eq('status', 'available')
-        .order('price_per_day', { ascending: true });
-
-      if (error) throw error;
-      setVehicles(data || []);
-    } catch (error) {
-      // Error fetching vehicles - silent fail
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function checkAvailability(pickupDate: string, dropoffDate: string) {
     try {

@@ -56,37 +56,53 @@ export function BookingsManagement() {
   const [activeTab, setActiveTab] = useState<'bookings' | 'blocks'>('bookings');
 
   useEffect(() => {
-    fetchBookings();
-  }, []);
+    let cancelled = false;
 
-  async function fetchBookings() {
-    try {
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
+    async function fetchBookings() {
+      try {
+        const { data: bookingsData, error: bookingsError } = await supabase
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (bookingsError) throw bookingsError;
+        if (cancelled) return;
 
-      const { data: vehiclesData, error: vehiclesError } = await supabase
-        .from('vehicles')
-        .select('id, brand, model');
+        if (bookingsError) throw bookingsError;
 
-      if (vehiclesError) throw vehiclesError;
+        const { data: vehiclesData, error: vehiclesError } = await supabase
+          .from('vehicles')
+          .select('id, brand, model');
 
-      const vehiclesMap = vehiclesData.reduce((acc, v) => {
-        acc[v.id] = v;
-        return acc;
-      }, {} as Record<string, Vehicle>);
+        if (cancelled) return;
 
-      setVehicles(vehiclesMap);
-      setBookings(bookingsData || []);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-    } finally {
-      setLoading(false);
+        if (vehiclesError) throw vehiclesError;
+
+        const vehiclesMap = vehiclesData.reduce((acc, v) => {
+          acc[v.id] = v;
+          return acc;
+        }, {} as Record<string, Vehicle>);
+
+        if (!cancelled) {
+          setVehicles(vehiclesMap);
+          setBookings(bookingsData || []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Error fetching bookings:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     }
-  }
+
+    fetchBookings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =

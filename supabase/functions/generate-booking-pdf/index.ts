@@ -33,12 +33,13 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { booking_id } = await req.json();
+    const { booking_id, customer_email, guest_token } = await req.json();
 
     if (!booking_id) {
       throw new Error('Missing required field: booking_id');
     }
 
+    // First fetch the booking to verify access
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .select(`
@@ -58,6 +59,51 @@ Deno.serve(async (req: Request) => {
 
     if (bookingError) throw bookingError;
     if (!booking) throw new Error('Booking not found');
+
+    // Verify authorization - must be customer or admin
+    const authHeader = req.headers.get('Authorization');
+    let isAuthorized = false;
+
+    if (authHeader) {
+      // Check if user is authenticated and is either admin or booking owner
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+      if (!authError && user) {
+        // Check if admin
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        // User is authorized if they are admin OR if their email matches booking
+        isAuthorized = !!adminUser || user.email === booking.customer_email;
+      }
+    }
+
+    // Also allow access via guest_link_token for non-authenticated users
+    if (!isAuthorized && guest_token && booking.guest_link_token) {
+      isAuthorized = guest_token === booking.guest_link_token;
+    }
+
+    // Also allow access if customer_email matches (for backward compatibility)
+    if (!isAuthorized && customer_email) {
+      isAuthorized = customer_email === booking.customer_email;
+    }
+
+    if (!isAuthorized) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized access to booking' }),
+        {
+          status: 403,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
 
     const vehicle = booking.vehicles;
 

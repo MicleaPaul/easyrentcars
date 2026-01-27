@@ -2,11 +2,29 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
+const ALLOWED_ORIGINS = [
+  'https://easyrentcars.rentals',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
+
+function isValidRedirectUrl(url: string): boolean {
+  try {
+    const parsedUrl = new URL(url);
+    return ALLOWED_ORIGINS.some(origin => {
+      const allowedUrl = new URL(origin);
+      return parsedUrl.origin === allowedUrl.origin;
+    });
+  } catch {
+    return false;
+  }
+}
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -62,6 +80,33 @@ Deno.serve(async (req: Request) => {
 
   try {
     const bookingData: BookingData = await req.json();
+
+    // Validate redirect URLs to prevent open redirect vulnerability
+    if (!isValidRedirectUrl(bookingData.success_url)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid success_url' }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
+    if (!isValidRedirectUrl(bookingData.cancel_url)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid cancel_url' }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
 
     const { data: vehicle, error: vehicleError } = await supabase
       .from('vehicles')

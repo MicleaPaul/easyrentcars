@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { booking_id } = await req.json();
+    const { booking_id, customer_email } = await req.json();
 
     if (!booking_id) {
       throw new Error('Missing booking_id');
@@ -52,6 +52,43 @@ Deno.serve(async (req: Request) => {
 
     if (bookingError || !booking) {
       throw new Error('Booking not found');
+    }
+
+    // Verify authorization - must provide matching customer_email or be authenticated admin
+    const authHeader = req.headers.get('Authorization');
+    let isAuthorized = false;
+
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+      if (!authError && user) {
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .single();
+
+        isAuthorized = !!adminUser || user.email === booking.customer_email;
+      }
+    }
+
+    // Also allow if customer_email matches booking
+    if (!isAuthorized && customer_email) {
+      isAuthorized = customer_email === booking.customer_email;
+    }
+
+    if (!isAuthorized) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Email does not match booking' }),
+        {
+          status: 403,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     if (booking.booking_status !== 'PendingPayment') {

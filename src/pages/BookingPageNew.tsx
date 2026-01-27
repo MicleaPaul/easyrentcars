@@ -75,29 +75,41 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   });
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchCarDetails(carId: string) {
+      try {
+        const { data, error } = await supabase
+          .from('vehicles')
+          .select('id, brand, model, year, transmission, fuel_type, seats, price_per_day, minimum_age')
+          .eq('id', carId)
+          .maybeSingle();
+
+        if (cancelled) return;
+
+        if (error) throw error;
+        if (data) {
+          setCar(data);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Error fetching car details:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
     if (id) {
       fetchCarDetails(id);
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
-
-  async function fetchCarDetails(carId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('id, brand, model, year, transmission, fuel_type, seats, price_per_day, minimum_age')
-        .eq('id', carId)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (data) {
-        setCar(data);
-      }
-    } catch (error) {
-      console.error('Error fetching car details:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const generateTimeOptions = () => {
     const times = [];

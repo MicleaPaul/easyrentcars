@@ -48,29 +48,41 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
   const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchCarDetails(carId: string) {
+      try {
+        const { data, error } = await supabase
+          .from('vehicles')
+          .select('*')
+          .eq('id', carId)
+          .maybeSingle();
+
+        if (cancelled) return;
+
+        if (error) throw error;
+        if (data) {
+          setCar(data);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Error fetching car details:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
     if (id) {
       fetchCarDetails(id);
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
-
-  async function fetchCarDetails(carId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('*')
-        .eq('id', carId)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (data) {
-        setCar(data);
-      }
-    } catch (error) {
-      // Error fetching car details
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handleBooking = async () => {
     if (!pickupDate || !dropoffDate) {
