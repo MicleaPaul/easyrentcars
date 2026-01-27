@@ -104,8 +104,8 @@ export function ContactSection() {
                   <div className="min-w-0">
                     <p className="text-white font-semibold mb-0.5 xs:mb-1 text-sm xs:text-base">{t('contact.address')}</p>
                     <p className="text-[#9AA0A6] text-xs xs:text-sm">
-                      {t('contact.addressLine1')}<br />
-                      {t('contact.addressLine2')}
+                      {contactInfo.address?.street}<br />
+                      {contactInfo.address?.postalCode} {contactInfo.address?.city}, {contactInfo.address?.country}
                     </p>
                   </div>
                 </div>
