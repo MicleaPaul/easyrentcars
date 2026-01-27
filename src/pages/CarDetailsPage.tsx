@@ -80,8 +80,8 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
 
     const days = calculateDays();
 
-    if (days <= 0) {
-      alert(t('carDetails.invalidDatesAlert') || 'Return date must be after pickup date');
+    if (days < 1) {
+      alert(t('carDetails.invalidDatesAlert') || 'Return date must be on or after pickup date');
       return;
     }
 
@@ -116,7 +116,7 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
     const start = new Date(pickupDate);
     const end = new Date(dropoffDate);
     const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return days > 0 ? days : 0;
+    return days >= 0 ? Math.max(1, days) : 0;
   };
 
   const totalPrice = car ? calculateDays() * car.price_per_day : 0;

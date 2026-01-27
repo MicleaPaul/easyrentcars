@@ -35,7 +35,8 @@ export function BookingPage({ carId, pickupDate, dropoffDate, onBack, onComplete
   const calculateDays = () => {
     const start = new Date(pickupDate);
     const end = new Date(dropoffDate);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(1, days);
   };
 
   const days = calculateDays();

@@ -53,7 +53,7 @@ export function CarDetails({ carId, onBack, onBook }: CarDetailsProps) {
     const start = new Date(pickupDate);
     const end = new Date(dropoffDate);
     const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return days > 0 ? days : 0;
+    return days >= 0 ? Math.max(1, days) : 0;
   };
 
   const totalPrice = calculateDays() * car.price_per_day;
