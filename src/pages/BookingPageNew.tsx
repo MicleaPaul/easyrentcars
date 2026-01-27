@@ -124,7 +124,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   };
 
   const calculateDays = () => {
-    if (!pickupDate || !returnDate) return { days: 0, hasExtraDay: false };
+    if (!pickupDate || !returnDate) return { days: 0, hasExtraDay: false, isSameDay: false, hours: 0 };
     const start = new Date(pickupDate);
     const end = new Date(returnDate);
     const baseDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
@@ -134,13 +134,20 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
     const pickupMinutes = pickupHour * 60 + pickupMinute;
     const returnMinutes = returnHour * 60 + returnMinute;
 
+    const isSameDay = baseDays === 0;
+
+    if (isSameDay) {
+      const hours = Math.max(1, Math.round((returnMinutes - pickupMinutes) / 60));
+      return { days: 1, hasExtraDay: false, isSameDay: true, hours };
+    }
+
     const hasExtraDay = returnMinutes > pickupMinutes;
     const totalDays = hasExtraDay ? baseDays + 1 : baseDays;
 
-    return { days: totalDays, hasExtraDay };
+    return { days: totalDays, hasExtraDay, isSameDay: false, hours: 0 };
   };
 
-  const { days, hasExtraDay } = calculateDays();
+  const { days, hasExtraDay, isSameDay, hours } = calculateDays();
   const locationFees = getTotalLocationFees();
   const afterHoursFee = calculateAfterHoursFee();
   const cleaningFeeAmount = settings.cleaning_fee?.amount || 7;
@@ -173,6 +180,19 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
       setWarningMessage(t('modal.warning') || 'Please select pickup and return dates');
       setShowWarningModal(true);
       return;
+    }
+
+    if (pickupDate === returnDate) {
+      const [pickupHour, pickupMinute] = pickupTime.split(':').map(Number);
+      const [returnHour, returnMinute] = returnTime.split(':').map(Number);
+      const pickupMinutes = pickupHour * 60 + pickupMinute;
+      const returnMinutes = returnHour * 60 + returnMinute;
+
+      if (returnMinutes <= pickupMinutes) {
+        setWarningMessage(t('bookingPage.returnTimeMustBeGreater'));
+        setShowWarningModal(true);
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -486,6 +506,21 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                         </select>
                         <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4AF37] pointer-events-none" />
                       </div>
+                      {pickupDate === returnDate && (() => {
+                        const [pickupHour, pickupMinute] = pickupTime.split(':').map(Number);
+                        const [returnHour, returnMinute] = returnTime.split(':').map(Number);
+                        const pickupMinutes = pickupHour * 60 + pickupMinute;
+                        const returnMinutes = returnHour * 60 + returnMinute;
+                        return returnMinutes <= pickupMinutes ? (
+                          <p className="text-xs text-red-400 mt-2">
+                            {t('booking.selectLaterTime')}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-blue-400 mt-2">
+                            {t('booking.sameDayAllowed')}
+                          </p>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -681,7 +716,18 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                 <div>
                   <p className="text-xs text-[#9AA0A6] mb-1">{t('bookingPage.duration')}</p>
                   <p className="text-white font-semibold">{days} {days === 1 ? t('bookingPage.day') : t('bookingPage.days')}</p>
-                  {hasExtraDay && (
+                  {isSameDay && hours > 0 && (
+                    <div className="mt-2 p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-blue-300">
+                          {t('bookingPage.sameDayNotice', { pickupTime, returnTime })}
+                          {' '}({t('bookingPage.sameDayHours', { hours })})
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {!isSameDay && hasExtraDay && (
                     <div className="mt-2 p-2 rounded bg-amber-500/10 border border-amber-500/20">
                       <div className="flex items-start gap-2">
                         <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />

@@ -93,14 +93,19 @@ export function SearchFormNew({ onSearch }: SearchFormNewProps) {
             </div>
           </div>
 
-          <div className="mt-5 xs:mt-6 sm:mt-8 flex justify-center">
-            <button
-              onClick={handleSearch}
-              disabled={isSearchDisabled}
-              className="btn-primary px-8 xs:px-12 py-4 sm:px-16 sm:py-5 text-base sm:text-lg font-bold uppercase tracking-wide w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] touch-manipulation active:scale-[0.98] transition-transform"
-            >
-              {t('search.searchCars')}
-            </button>
+          <div className="mt-5 xs:mt-6 sm:mt-8">
+            <div className="flex justify-center mb-3">
+              <button
+                onClick={handleSearch}
+                disabled={isSearchDisabled}
+                className="btn-primary px-8 xs:px-12 py-4 sm:px-16 sm:py-5 text-base sm:text-lg font-bold uppercase tracking-wide w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed min-h-[52px] touch-manipulation active:scale-[0.98] transition-transform"
+              >
+                {t('search.searchCars')}
+              </button>
+            </div>
+            <p className="text-center text-[#9AA0A6] text-xs sm:text-sm">
+              {t('booking.sameDayAllowed')}
+            </p>
           </div>
         </div>
       </div>
