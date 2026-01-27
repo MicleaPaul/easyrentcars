@@ -23,7 +23,7 @@ export function ContactSection() {
   const contactInfo = settings.contact_info || {
     phone: '+43 664 158 4950',
     email: 'info@easyrentcars.rentals',
-    address: { city: 'Graz', postalCode: '8010', country: 'Austria' }
+    address: { street: 'Alte Poststraße 286', city: 'Graz', postalCode: '8053', country: 'Austria' }
   };
 
   const businessHours = settings.business_hours || {
