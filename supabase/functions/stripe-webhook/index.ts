@@ -57,7 +57,7 @@ async function handleEvent(event: Stripe.Event) {
       await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
       break;
     case 'checkout.session.expired':
-      console.log('Checkout session expired - no booking was created');
+      await handleCheckoutSessionExpired(event.data.object as Stripe.Checkout.Session);
       break;
     case 'payment_intent.payment_failed':
       await handlePaymentFailed(event.data.object as Stripe.PaymentIntent);
@@ -210,6 +210,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return;
     }
 
+    await supabase
+      .from('checkout_holds')
+      .update({ status: 'converted' })
+      .eq('stripe_session_id', session.id);
+
     console.log(`
       ============================================
       BOOKING CREATED - PAYMENT SUCCESSFUL
@@ -258,5 +263,24 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     console.log(`Failure message: ${paymentIntent.last_payment_error?.message || 'Unknown error'}`);
   } catch (error) {
     console.error('Error handling payment failure:', error);
+  }
+}
+
+async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
+  try {
+    console.log(`Checkout session expired: ${session.id}`);
+
+    const { error } = await supabase
+      .from('checkout_holds')
+      .update({ status: 'expired' })
+      .eq('stripe_session_id', session.id);
+
+    if (error) {
+      console.error('Failed to update hold status:', error);
+    } else {
+      console.log(`Hold released for expired session: ${session.id}`);
+    }
+  } catch (error) {
+    console.error('Error handling checkout session expired:', error);
   }
 }

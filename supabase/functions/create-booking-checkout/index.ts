@@ -17,6 +17,10 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   apiVersion: '2024-11-20.acacia',
 });
 
+async function cleanupExpiredHolds() {
+  await supabase.rpc('cleanup_expired_holds');
+}
+
 interface BookingData {
   vehicle_id: string;
   customer_name: string;
@@ -93,6 +97,20 @@ Deno.serve(async (req: Request) => {
 
     if (blocks && blocks.length > 0) {
       throw new Error('Vehicle is blocked for the selected dates');
+    }
+
+    await cleanupExpiredHolds();
+
+    const { data: activeHolds } = await supabase
+      .from('checkout_holds')
+      .select('id')
+      .eq('vehicle_id', bookingData.vehicle_id)
+      .eq('status', 'active')
+      .lte('pickup_date', bookingData.return_date)
+      .gte('return_date', bookingData.pickup_date);
+
+    if (activeHolds && activeHolds.length > 0) {
+      throw new Error('Vehicle is currently being booked by another customer. Please try again in a few minutes or choose different dates.');
     }
 
     const { data: pricingSettings } = await supabase
@@ -221,6 +239,8 @@ Deno.serve(async (req: Request) => {
       remaining_amount: String(remainingAmount),
     };
 
+    const sessionExpiresAt = Math.floor(Date.now() / 1000) + (30 * 60);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -229,8 +249,26 @@ Deno.serve(async (req: Request) => {
       cancel_url: bookingData.cancel_url,
       customer_email: bookingData.customer_email,
       metadata: bookingMetadata,
-      expires_at: Math.floor(Date.now() / 1000) + (30 * 60),
+      expires_at: sessionExpiresAt,
     });
+
+    const holdExpiresAt = new Date((sessionExpiresAt + 300) * 1000).toISOString();
+
+    const { error: holdError } = await supabase
+      .from('checkout_holds')
+      .insert({
+        vehicle_id: bookingData.vehicle_id,
+        stripe_session_id: session.id,
+        pickup_date: bookingData.pickup_date,
+        return_date: bookingData.return_date,
+        customer_email: bookingData.customer_email,
+        expires_at: holdExpiresAt,
+        status: 'active',
+      });
+
+    if (holdError) {
+      console.warn('Failed to create checkout hold:', holdError);
+    }
 
     return new Response(
       JSON.stringify({
