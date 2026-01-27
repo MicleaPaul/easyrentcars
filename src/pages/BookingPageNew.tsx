@@ -99,6 +99,19 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
     }
   }
 
+  const generateTimeOptions = () => {
+    const times = [];
+    for (let hour = 7; hour <= 20; hour++) {
+      times.push(`${hour.toString().padStart(2, '0')}:00`);
+      if (hour < 20) {
+        times.push(`${hour.toString().padStart(2, '0')}:30`);
+      }
+    }
+    return times;
+  };
+
+  const timeOptions = generateTimeOptions();
+
   const isAfterHours = (time: string) => {
     const hour = parseInt(time.split(':')[0]);
     return hour < 7 || hour >= 20;
@@ -432,12 +445,17 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                         {t('bookingPage.pickupTime')} *
                       </label>
                       <div className="relative">
-                        <input
-                          type="time"
+                        <select
                           value={pickupTime}
                           onChange={(e) => setPickupTime(e.target.value)}
-                          className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
-                        />
+                          className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all appearance-none cursor-pointer"
+                        >
+                          {timeOptions.map((time) => (
+                            <option key={time} value={time}>
+                              {time}
+                            </option>
+                          ))}
+                        </select>
                         <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4AF37] pointer-events-none" />
                       </div>
                     </div>
@@ -455,12 +473,17 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                         {t('bookingPage.returnTime')} *
                       </label>
                       <div className="relative">
-                        <input
-                          type="time"
+                        <select
                           value={returnTime}
                           onChange={(e) => setReturnTime(e.target.value)}
-                          className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
-                        />
+                          className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all appearance-none cursor-pointer"
+                        >
+                          {timeOptions.map((time) => (
+                            <option key={time} value={time}>
+                              {time}
+                            </option>
+                          ))}
+                        </select>
                         <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4AF37] pointer-events-none" />
                       </div>
                     </div>
