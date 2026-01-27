@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Banknote, Shield, CheckCircle, Clock, AlertCircle, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBooking } from '../contexts/BookingContext';
@@ -577,13 +577,13 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
                   />
                   <span className="text-sm text-[#9AA0A6] group-hover:text-[#F5F7FA] transition-colors">
                     {t('bookingPage.acceptTerms')}{' '}
-                    <a href="#" className="text-[#D4AF37] hover:text-[#F4D03F] underline">
+                    <Link to="/agb" target="_blank" rel="noopener noreferrer" className="text-[#D4AF37] hover:text-[#F4D03F] underline">
                       {t('bookingPage.termsAndConditions')}
-                    </a>{' '}
+                    </Link>{' '}
                     {t('bookingPage.and')}{' '}
-                    <a href="#" className="text-[#D4AF37] hover:text-[#F4D03F] underline">
+                    <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#D4AF37] hover:text-[#F4D03F] underline">
                       {t('bookingPage.privacyPolicy')}
-                    </a>
+                    </Link>
                   </span>
                 </label>
               </div>
