@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Fuel, Users, Info, ArrowRight, Gauge } from 'lucide-react';
+import { Settings, Fuel, Users, Info, ArrowRight, Gauge, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBooking } from '../contexts/BookingContext';
@@ -27,12 +27,13 @@ interface Vehicle {
 export function FleetSection() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { category, pickupDate, returnDate, getTotalLocationFees } = useBooking();
+  const { category, pickupDate, returnDate, getTotalLocationFees, setPickupDate, setReturnDate } = useBooking();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [availableVehicles, setAvailableVehicles] = useState<string[]>([]);
   const [showKmTooltip, setShowKmTooltip] = useState<string | null>(null);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,10 +78,15 @@ export function FleetSection() {
     let cancelled = false;
 
     async function performAvailabilityCheck() {
+      // If no dates selected, show all vehicles
       if (!pickupDate || !returnDate) {
-        setAvailableVehicles([]);
+        console.log('Fleet: No dates selected, showing all vehicles');
+        setAvailableVehicles(vehicles.map(v => v.id));
+        setIsCheckingAvailability(false);
         return;
       }
+
+      setIsCheckingAvailability(true);
 
       try {
         const pickupISO = `${pickupDate}T00:00:00Z`;
@@ -134,12 +140,15 @@ export function FleetSection() {
 
         if (!cancelled) {
           setAvailableVehicles(available);
+          setIsCheckingAvailability(false);
         }
       } catch (error) {
         if (!cancelled) {
           console.error('Error checking availability:', error);
-          // On error, keep the current state instead of showing all vehicles
-          // This prevents blocked vehicles from appearing when there's an error
+          console.warn('Fleet: Error occurred, showing all vehicles as fallback');
+          // On error, show all vehicles with a warning
+          setAvailableVehicles(vehicles.map(v => v.id));
+          setIsCheckingAvailability(false);
         }
       }
     }
@@ -150,50 +159,6 @@ export function FleetSection() {
       cancelled = true;
     };
   }, [pickupDate, returnDate, vehicles]);
-
-  async function checkAvailability(pickupDate: string, dropoffDate: string) {
-    try {
-      // Convert date strings to ISO format with time for proper comparison
-      const pickupISO = `${pickupDate}T00:00:00Z`;
-      const dropoffISO = `${dropoffDate}T23:59:59Z`;
-
-      // Check for overlapping bookings
-      const { data: bookings, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('vehicle_id, pickup_date, return_date, booking_status')
-        .lt('pickup_date', dropoffISO)
-        .gt('return_date', pickupISO)
-        .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment']);
-
-      if (bookingsError) {
-        throw bookingsError;
-      }
-
-      // Check for vehicle blocks
-      const { data: blocks, error: blocksError } = await supabase
-        .from('vehicle_blocks')
-        .select('vehicle_id, blocked_from, blocked_until, reason')
-        .lt('blocked_from', dropoffISO)
-        .gt('blocked_until', pickupISO);
-
-      if (blocksError) {
-        throw blocksError;
-      }
-
-      const bookedVehicleIds = bookings?.map(b => b.vehicle_id) || [];
-      const blockedVehicleIds = blocks?.map(b => b.vehicle_id) || [];
-      const unavailableVehicleIds = [...new Set([...bookedVehicleIds, ...blockedVehicleIds])];
-
-      const available = vehicles
-        .filter(v => !unavailableVehicleIds.includes(v.id))
-        .map(v => v.id);
-
-      setAvailableVehicles(available);
-    } catch (error) {
-      console.error('Error checking vehicle availability:', error);
-      // On error, keep current state to prevent blocked vehicles from appearing
-    }
-  }
 
   const categories = ['all', 'Economy', 'Standard', 'Premium'];
 
@@ -216,6 +181,14 @@ export function FleetSection() {
       </section>
     );
   }
+
+  const handleResetDates = () => {
+    setPickupDate('');
+    setReturnDate('');
+  };
+
+  const hasActiveFilters = pickupDate && returnDate;
+  const showingFilteredResults = hasActiveFilters && filteredVehicles.length > 0;
 
   return (
     <section id="fleet" className="py-12 xs:py-16 sm:py-20 lg:py-32 bg-[#0B0C0F]">
@@ -245,13 +218,52 @@ export function FleetSection() {
           </div>
         </div>
 
-        {filteredVehicles.length === 0 ? (
-          <div className="text-center py-8 xs:py-12">
-            <p className="text-[#9AA0A6] text-base xs:text-lg">
-              {pickupDate && returnDate
-                ? t('fleet.noAvailable') || 'No vehicles available for selected dates'
-                : t('fleet.noCars') || 'No vehicles found'}
+        {isCheckingAvailability && (
+          <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/20 rounded-lg">
+            <p className="text-[#D4AF37] text-sm flex items-center gap-2">
+              <span className="inline-block w-4 h-4 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin"></span>
+              Checking vehicle availability...
             </p>
+          </div>
+        )}
+
+        {showingFilteredResults && (
+          <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/30 rounded-lg flex items-center justify-between flex-wrap gap-3">
+            <p className="text-[#9AA0A6] text-sm">
+              Showing <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> available vehicle{filteredVehicles.length !== 1 ? 's' : ''} for your selected dates
+            </p>
+            <button
+              onClick={handleResetDates}
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg text-[#9AA0A6] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all text-sm"
+            >
+              <X className="w-4 h-4" />
+              Clear dates
+            </button>
+          </div>
+        )}
+
+        {filteredVehicles.length === 0 ? (
+          <div className="text-center py-12 px-4">
+            <div className="max-w-md mx-auto">
+              <p className="text-[#9AA0A6] text-lg mb-6">
+                {hasActiveFilters
+                  ? 'No vehicles available for your selected dates'
+                  : 'No vehicles found in this category'}
+              </p>
+              {hasActiveFilters && (
+                <div className="space-y-4">
+                  <p className="text-[#9AA0A6] text-sm">
+                    All vehicles are currently booked or blocked for the selected dates. Please try different dates.
+                  </p>
+                  <button
+                    onClick={handleResetDates}
+                    className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-semibold rounded-lg hover:shadow-xl transition-all"
+                  >
+                    View All Available Vehicles
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xs:gap-5 sm:gap-8">
