@@ -81,74 +81,43 @@ export function FleetSection() {
       setIsCheckingAvailability(true);
 
       try {
-        let pickupISO: string;
-        let dropoffISO: string;
+        let pickupISO: string | undefined;
+        let dropoffISO: string | undefined;
 
-        // If no dates selected, check for vehicles blocked NOW (current time)
-        if (!pickupDate || !returnDate) {
-          console.log('Fleet: No dates selected, checking for vehicles blocked NOW');
-          const now = new Date();
-          pickupISO = now.toISOString();
-          dropoffISO = now.toISOString();
-        } else {
+        if (pickupDate && returnDate) {
           pickupISO = `${pickupDate}T00:00:00Z`;
           dropoffISO = `${returnDate}T23:59:59Z`;
           console.log('Fleet: Checking availability from', pickupISO, 'to', dropoffISO);
+        } else {
+          console.log('Fleet: No dates selected, checking for vehicles available NOW');
         }
 
-        const { data: bookings, error: bookingsError } = await supabase
-          .from('bookings')
-          .select('vehicle_id')
-          .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment'])
-          .lt('pickup_date', dropoffISO)
-          .gt('return_date', pickupISO);
+        const { data: availableVehicleIds, error: rpcError } = await supabase.rpc(
+          'get_available_vehicles_rpc',
+          {
+            p_pickup_date: pickupISO || null,
+            p_return_date: dropoffISO || null
+          }
+        );
 
         if (cancelled) return;
 
-        if (bookingsError) {
-          console.error('Fleet: Error fetching bookings:', bookingsError);
-          throw bookingsError;
+        if (rpcError) {
+          console.error('Fleet: RPC error checking availability:', rpcError);
+          throw rpcError;
         }
 
-        console.log('Fleet: Found', bookings?.length || 0, 'conflicting bookings');
-
-        const { data: blocks, error: blocksError } = await supabase
-          .from('vehicle_blocks')
-          .select('vehicle_id')
-          .lt('blocked_from', dropoffISO)
-          .gt('blocked_until', pickupISO);
-
-        if (cancelled) return;
-
-        if (blocksError) {
-          console.error('Fleet: Error fetching vehicle blocks:', blocksError);
-          throw blocksError;
-        }
-
-        console.log('Fleet: Found', blocks?.length || 0, 'vehicle blocks');
-
-        const unavailableVehicleIds = new Set([
-          ...(bookings || []).map(b => b.vehicle_id),
-          ...(blocks || []).map(b => b.vehicle_id)
-        ]);
-
-        console.log('Fleet: Unavailable vehicle IDs:', Array.from(unavailableVehicleIds));
-
-        const available = vehicles
-          .filter(v => !unavailableVehicleIds.has(v.id))
-          .map(v => v.id);
-
-        console.log('Fleet: Available vehicles count:', available.length, 'out of', vehicles.length);
+        console.log('Fleet: Available vehicle IDs from RPC:', availableVehicleIds);
+        console.log('Fleet: Available vehicles count:', availableVehicleIds?.length || 0, 'out of', vehicles.length);
 
         if (!cancelled) {
-          setAvailableVehicles(available);
+          setAvailableVehicles(availableVehicleIds || []);
           setIsCheckingAvailability(false);
         }
       } catch (error) {
         if (!cancelled) {
           console.error('Error checking availability:', error);
           console.warn('Fleet: Error occurred, showing all vehicles as fallback');
-          // On error, show all vehicles with a warning
           setAvailableVehicles(vehicles.map(v => v.id));
           setIsCheckingAvailability(false);
         }

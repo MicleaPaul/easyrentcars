@@ -25,29 +25,61 @@ export async function checkVehicleAvailability(
 
     console.log('Checking availability for vehicle:', vehicleId, 'from', pickupISO, 'to', returnISO);
 
+    const { data: rpcResult, error: rpcError } = await supabase.rpc(
+      'check_vehicle_availability_rpc',
+      {
+        p_vehicle_id: vehicleId,
+        p_pickup_date: pickupISO,
+        p_return_date: returnISO
+      }
+    );
+
+    if (rpcError) {
+      console.error('RPC availability check error:', rpcError);
+      return checkVehicleAvailabilityFallback(vehicleId, pickupISO, returnISO);
+    }
+
+    if (rpcResult) {
+      console.log('RPC availability result:', rpcResult);
+      return {
+        isAvailable: rpcResult.isAvailable,
+        reason: rpcResult.reason || undefined,
+        conflictType: rpcResult.conflictType || undefined
+      };
+    }
+
+    return {
+      isAvailable: true
+    };
+  } catch (error) {
+    console.error('Availability check failed with exception:', error);
+    return checkVehicleAvailabilityFallback(vehicleId, `${pickupDate}T00:00:00Z`, `${returnDate}T23:59:59Z`);
+  }
+}
+
+async function checkVehicleAvailabilityFallback(
+  vehicleId: string,
+  pickupISO: string,
+  returnISO: string
+): Promise<AvailabilityResult> {
+  console.log('Using fallback availability check method');
+
+  try {
     const { data: bookings, error: bookingsError } = await supabase
       .from('bookings')
-      .select('id, pickup_date, return_date, booking_status')
+      .select('id, pickup_date, return_date, status')
       .eq('vehicle_id', vehicleId)
       .lt('pickup_date', returnISO)
       .gt('return_date', pickupISO)
-      .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment']);
+      .in('status', ['confirmed', 'pending']);
 
     if (bookingsError) {
       console.error('Error checking bookings:', bookingsError);
-      console.error('Bookings error details:', {
-        message: bookingsError.message,
-        code: bookingsError.code,
-        hint: bookingsError.hint,
-        details: bookingsError.details
-      });
       return {
         isAvailable: false,
         reason: `Database error: ${bookingsError.message}`
       };
     }
-
-    console.log('Bookings found:', bookings?.length || 0);
 
     if (bookings && bookings.length > 0) {
       return {
@@ -66,19 +98,11 @@ export async function checkVehicleAvailability(
 
     if (blocksError) {
       console.error('Error checking vehicle blocks:', blocksError);
-      console.error('Blocks error details:', {
-        message: blocksError.message,
-        code: blocksError.code,
-        hint: blocksError.hint,
-        details: blocksError.details
-      });
       return {
         isAvailable: false,
         reason: `Database error: ${blocksError.message}`
       };
     }
-
-    console.log('Vehicle blocks found:', blocks?.length || 0);
 
     if (blocks && blocks.length > 0) {
       console.log('Vehicle is blocked:', blocks[0]);
@@ -89,12 +113,11 @@ export async function checkVehicleAvailability(
       };
     }
 
-    console.log('Vehicle is available');
     return {
       isAvailable: true
     };
   } catch (error) {
-    console.error('Availability check failed with exception:', error);
+    console.error('Fallback availability check failed:', error);
     return {
       isAvailable: false,
       reason: error instanceof Error ? error.message : 'Unknown error occurred'
