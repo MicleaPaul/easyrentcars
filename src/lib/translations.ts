@@ -408,6 +408,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.hours': 'Stunden',
     'bookingPage.invalidReturnTime': 'Ungültige Rückgabezeit',
     'bookingPage.returnTimeMustBeGreater': 'Die Rückgabezeit muss nach der Abholzeit liegen',
+    'bookingPage.checkoutError': 'Bei der Verarbeitung Ihrer Buchung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
     'booking.sameDayAllowed': 'Eintägige Buchungen sind möglich',
     'booking.selectLaterTime': 'Bitte wählen Sie eine spätere Rückgabezeit',
 
@@ -1341,6 +1342,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.hours': 'hours',
     'bookingPage.invalidReturnTime': 'Invalid return time',
     'bookingPage.returnTimeMustBeGreater': 'Return time must be after pickup time',
+    'bookingPage.checkoutError': 'An error occurred while processing your booking. Please try again.',
     'booking.sameDayAllowed': 'Same-day bookings are allowed',
     'booking.selectLaterTime': 'Please select a later return time',
 
@@ -1975,6 +1977,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.hours': 'heures',
     'bookingPage.invalidReturnTime': 'Heure de retour invalide',
     'bookingPage.returnTimeMustBeGreater': 'L\'heure de retour doit etre apres l\'heure de prise en charge',
+    'bookingPage.checkoutError': 'Une erreur s\'est produite lors du traitement de votre réservation. Veuillez réessayer.',
     'booking.sameDayAllowed': 'Les reservations d\'une journee sont autorisees',
     'booking.selectLaterTime': 'Veuillez selectionner une heure de retour ulterieure',
 
@@ -2899,6 +2902,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.hours': 'ore',
     'bookingPage.invalidReturnTime': 'Orario di riconsegna non valido',
     'bookingPage.returnTimeMustBeGreater': 'L\'orario di riconsegna deve essere successivo all\'orario di ritiro',
+    'bookingPage.checkoutError': 'Si è verificato un errore durante l\'elaborazione della prenotazione. Riprova.',
     'booking.sameDayAllowed': 'Le prenotazioni di un giorno sono consentite',
     'booking.selectLaterTime': 'Seleziona un orario di riconsegna successivo',
 
@@ -3822,6 +3826,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.hours': 'horas',
     'bookingPage.invalidReturnTime': 'Hora de devolución no válida',
     'bookingPage.returnTimeMustBeGreater': 'La hora de devolución debe ser posterior a la hora de recogida',
+    'bookingPage.checkoutError': 'Se produjo un error al procesar su reserva. Por favor, inténtelo de nuevo.',
     'booking.sameDayAllowed': 'Se permiten reservas de un día',
     'booking.selectLaterTime': 'Por favor, selecciona una hora de devolución posterior',
 
@@ -5044,6 +5049,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'bookingPage.hours': 'ore',
     'bookingPage.invalidReturnTime': 'Oră de returnare invalidă',
     'bookingPage.returnTimeMustBeGreater': 'Ora de returnare trebuie să fie după ora de preluare',
+    'bookingPage.checkoutError': 'A apărut o eroare la procesarea rezervării dumneavoastră. Vă rugăm să încercați din nou.',
     'booking.sameDayAllowed': 'Rezervările pentru o singură zi sunt permise',
     'booking.selectLaterTime': 'Vă rugăm selectați o oră de returnare mai târzie',
 

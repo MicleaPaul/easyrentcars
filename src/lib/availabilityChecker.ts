@@ -11,6 +11,14 @@ export async function checkVehicleAvailability(
   pickupDate: string,
   returnDate: string
 ): Promise<AvailabilityResult> {
+  if (!vehicleId || !pickupDate || !returnDate) {
+    console.error('Invalid parameters for availability check');
+    return {
+      isAvailable: false,
+      reason: 'Invalid booking parameters'
+    };
+  }
+
   try {
     const pickupISO = `${pickupDate}T00:00:00Z`;
     const returnISO = `${returnDate}T23:59:59Z`;
@@ -27,7 +35,16 @@ export async function checkVehicleAvailability(
 
     if (bookingsError) {
       console.error('Error checking bookings:', bookingsError);
-      throw new Error(`Failed to check bookings: ${bookingsError.message}`);
+      console.error('Bookings error details:', {
+        message: bookingsError.message,
+        code: bookingsError.code,
+        hint: bookingsError.hint,
+        details: bookingsError.details
+      });
+      return {
+        isAvailable: false,
+        reason: `Database error: ${bookingsError.message}`
+      };
     }
 
     console.log('Bookings found:', bookings?.length || 0);
@@ -49,7 +66,16 @@ export async function checkVehicleAvailability(
 
     if (blocksError) {
       console.error('Error checking vehicle blocks:', blocksError);
-      throw new Error(`Failed to check vehicle blocks: ${blocksError.message}`);
+      console.error('Blocks error details:', {
+        message: blocksError.message,
+        code: blocksError.code,
+        hint: blocksError.hint,
+        details: blocksError.details
+      });
+      return {
+        isAvailable: false,
+        reason: `Database error: ${blocksError.message}`
+      };
     }
 
     console.log('Vehicle blocks found:', blocks?.length || 0);
@@ -68,7 +94,10 @@ export async function checkVehicleAvailability(
       isAvailable: true
     };
   } catch (error) {
-    console.error('Availability check failed:', error);
-    throw error;
+    console.error('Availability check failed with exception:', error);
+    return {
+      isAvailable: false,
+      reason: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
   }
 }

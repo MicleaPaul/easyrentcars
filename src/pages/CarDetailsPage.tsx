@@ -105,9 +105,15 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
       const availabilityResult = await checkVehicleAvailability(id, pickupDate, dropoffDate);
 
       if (!availabilityResult.isAvailable) {
-        const message = availabilityResult.conflictType === 'booking'
-          ? t('availability.alreadyBooked') || 'This vehicle is already booked for the selected period. Please choose different dates or another vehicle.'
-          : t('availability.vehicleBlocked') || 'This vehicle is not available for the selected period. Please choose different dates or another vehicle.';
+        let message: string;
+
+        if (availabilityResult.reason?.includes('Database error')) {
+          message = t('availability.checkError') || 'An error occurred while checking availability. Please try again.';
+        } else if (availabilityResult.conflictType === 'booking') {
+          message = t('availability.alreadyBooked') || 'This vehicle is already booked for the selected period. Please choose different dates or another vehicle.';
+        } else {
+          message = t('availability.vehicleBlocked') || 'This vehicle is not available for the selected period. Please choose different dates or another vehicle.';
+        }
 
         alert(message);
         return;
@@ -118,8 +124,7 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
       navigate(`/booking/${id}`);
     } catch (error) {
       console.error('Availability check error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert(t('availability.checkError') || `An error occurred while checking availability: ${errorMessage}. Please try again or contact support.`);
+      alert(t('availability.checkError') || 'An error occurred while checking availability. Please try again.');
     } finally {
       setCheckingAvailability(false);
     }

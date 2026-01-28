@@ -33,7 +33,7 @@ export function FleetSection() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [availableVehicles, setAvailableVehicles] = useState<string[]>([]);
   const [showKmTooltip, setShowKmTooltip] = useState<string | null>(null);
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -169,11 +169,14 @@ export function FleetSection() {
     : vehicles.filter(v => v.category === selectedCategory);
 
   // Always filter by available vehicles (includes checking blocks for current time when no dates selected)
-  filteredVehicles = filteredVehicles.filter(v => availableVehicles.includes(v.id));
+  // Only apply filtering if availability check is complete
+  if (!isCheckingAvailability) {
+    filteredVehicles = filteredVehicles.filter(v => availableVehicles.includes(v.id));
+  }
 
   const locationFees = getTotalLocationFees();
 
-  if (loading) {
+  if (loading || isCheckingAvailability) {
     return (
       <section className="py-12 xs:py-16 sm:py-20 lg:py-32 bg-[#0B0C0F]">
         <div className="container mx-auto px-3 xs:px-4 sm:px-8 lg:px-12 max-w-[1440px]">
@@ -217,15 +220,6 @@ export function FleetSection() {
             ))}
           </div>
         </div>
-
-        {isCheckingAvailability && (
-          <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/20 rounded-lg">
-            <p className="text-[#D4AF37] text-sm flex items-center gap-2">
-              <span className="inline-block w-4 h-4 border-2 border-[#D4AF37] border-t-transparent rounded-full animate-spin"></span>
-              Checking vehicle availability...
-            </p>
-          </div>
-        )}
 
         {hasActiveFilters && filteredVehicles.length > 0 && (
           <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/30 rounded-lg flex items-center justify-between flex-wrap gap-3">

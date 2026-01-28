@@ -213,9 +213,15 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
       const availabilityResult = await checkVehicleAvailability(id, pickupDate, returnDate);
 
       if (!availabilityResult.isAvailable) {
-        const message = availabilityResult.conflictType === 'booking'
-          ? t('availability.justBooked') || 'Sorry, this vehicle was just booked by someone else. Please choose different dates or another vehicle.'
-          : t('availability.vehicleBlocked') || 'This vehicle is not available for the selected period. Please choose different dates or another vehicle.';
+        let message: string;
+
+        if (availabilityResult.reason?.includes('Database error')) {
+          message = t('availability.checkError') || 'An error occurred while checking availability. Please try again.';
+        } else if (availabilityResult.conflictType === 'booking') {
+          message = t('availability.justBooked') || 'Sorry, this vehicle was just booked by someone else. Please choose different dates or another vehicle.';
+        } else {
+          message = t('availability.vehicleBlocked') || 'This vehicle is not available for the selected period. Please choose different dates or another vehicle.';
+        }
 
         setErrorMessage(message);
         setShowErrorModal(true);
@@ -272,15 +278,30 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create checkout session');
+        console.error('Checkout error:', error);
+
+        let errorMsg = t('bookingPage.checkoutError') || 'An error occurred while processing your booking.';
+
+        if (error.error?.includes('Vehicle')) {
+          errorMsg = t('availability.vehicleBlocked') || error.error;
+        } else if (error.error?.includes('available')) {
+          errorMsg = t('availability.alreadyBooked') || error.error;
+        }
+
+        throw new Error(errorMsg);
       }
 
       const { url } = await response.json();
 
+      if (!url) {
+        throw new Error(t('bookingPage.checkoutError') || 'Failed to create checkout session');
+      }
+
       window.location.href = url;
     } catch (error: any) {
       console.error('Booking error:', error);
-      setErrorMessage('An error occurred while creating your booking: ' + error.message);
+      const errorMsg = error.message || t('bookingPage.checkoutError') || 'An error occurred while creating your booking.';
+      setErrorMessage(errorMsg);
       setShowErrorModal(true);
     } finally {
       setSubmitting(false);
