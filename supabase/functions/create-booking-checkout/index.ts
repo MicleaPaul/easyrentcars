@@ -125,7 +125,7 @@ Deno.serve(async (req: Request) => {
       .from('bookings')
       .select('id')
       .eq('vehicle_id', bookingData.vehicle_id)
-      .in('booking_status', ['Confirmed', 'Active', 'confirmed', 'active'])
+      .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment'])
       .lt('pickup_date', returnISO)
       .gt('return_date', pickupISO);
 

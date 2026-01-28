@@ -78,21 +78,23 @@ export function FleetSection() {
     let cancelled = false;
 
     async function performAvailabilityCheck() {
-      // If no dates selected, show all vehicles
-      if (!pickupDate || !returnDate) {
-        console.log('Fleet: No dates selected, showing all vehicles');
-        setAvailableVehicles(vehicles.map(v => v.id));
-        setIsCheckingAvailability(false);
-        return;
-      }
-
       setIsCheckingAvailability(true);
 
       try {
-        const pickupISO = `${pickupDate}T00:00:00Z`;
-        const dropoffISO = `${returnDate}T23:59:59Z`;
+        let pickupISO: string;
+        let dropoffISO: string;
 
-        console.log('Fleet: Checking availability from', pickupISO, 'to', dropoffISO);
+        // If no dates selected, check for vehicles blocked NOW (current time)
+        if (!pickupDate || !returnDate) {
+          console.log('Fleet: No dates selected, checking for vehicles blocked NOW');
+          const now = new Date();
+          pickupISO = now.toISOString();
+          dropoffISO = now.toISOString();
+        } else {
+          pickupISO = `${pickupDate}T00:00:00Z`;
+          dropoffISO = `${returnDate}T23:59:59Z`;
+          console.log('Fleet: Checking availability from', pickupISO, 'to', dropoffISO);
+        }
 
         const { data: bookings, error: bookingsError } = await supabase
           .from('bookings')
@@ -166,9 +168,8 @@ export function FleetSection() {
     ? vehicles
     : vehicles.filter(v => v.category === selectedCategory);
 
-  if (pickupDate && returnDate) {
-    filteredVehicles = filteredVehicles.filter(v => availableVehicles.includes(v.id));
-  }
+  // Always filter by available vehicles (includes checking blocks for current time when no dates selected)
+  filteredVehicles = filteredVehicles.filter(v => availableVehicles.includes(v.id));
 
   const locationFees = getTotalLocationFees();
 
@@ -188,7 +189,6 @@ export function FleetSection() {
   };
 
   const hasActiveFilters = pickupDate && returnDate;
-  const showingFilteredResults = hasActiveFilters && filteredVehicles.length > 0;
 
   return (
     <section id="fleet" className="py-12 xs:py-16 sm:py-20 lg:py-32 bg-[#0B0C0F]">
@@ -227,7 +227,7 @@ export function FleetSection() {
           </div>
         )}
 
-        {showingFilteredResults && (
+        {hasActiveFilters && filteredVehicles.length > 0 && (
           <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/30 rounded-lg flex items-center justify-between flex-wrap gap-3">
             <p className="text-[#9AA0A6] text-sm">
               Showing <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> available vehicle{filteredVehicles.length !== 1 ? 's' : ''} for your selected dates
@@ -239,6 +239,14 @@ export function FleetSection() {
               <X className="w-4 h-4" />
               Clear dates
             </button>
+          </div>
+        )}
+
+        {!hasActiveFilters && filteredVehicles.length > 0 && (
+          <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/30 rounded-lg">
+            <p className="text-[#9AA0A6] text-sm">
+              Showing <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> vehicle{filteredVehicles.length !== 1 ? 's' : ''} available now. Select dates to check availability for specific periods.
+            </p>
           </div>
         )}
 

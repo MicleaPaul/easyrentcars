@@ -74,7 +74,7 @@ export function VehicleBlockModal({ vehicleId, vehicleName, block, onClose, onSa
         .eq('vehicle_id', vehicleId)
         .lt('pickup_date', until)
         .gt('return_date', from)
-        .in('booking_status', ['confirmed', 'active', 'pending']);
+        .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment']);
 
       if (bookings && bookings.length > 0) {
         setError(t('admin.blockErrorOverlapBooking') || 'Există deja o rezervare confirmată în acest interval');

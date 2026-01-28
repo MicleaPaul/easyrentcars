@@ -23,7 +23,7 @@ export async function checkVehicleAvailability(
       .eq('vehicle_id', vehicleId)
       .lt('pickup_date', returnISO)
       .gt('return_date', pickupISO)
-      .in('booking_status', ['Confirmed', 'confirmed', 'Active', 'active']);
+      .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment']);
 
     if (bookingsError) {
       console.error('Error checking bookings:', bookingsError);
