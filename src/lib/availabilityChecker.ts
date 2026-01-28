@@ -15,6 +15,8 @@ export async function checkVehicleAvailability(
     const pickupISO = `${pickupDate}T00:00:00Z`;
     const returnISO = `${returnDate}T23:59:59Z`;
 
+    console.log('Checking availability for vehicle:', vehicleId, 'from', pickupISO, 'to', returnISO);
+
     const { data: bookings, error: bookingsError } = await supabase
       .from('bookings')
       .select('id, pickup_date, return_date, booking_status')
@@ -24,8 +26,11 @@ export async function checkVehicleAvailability(
       .in('booking_status', ['Confirmed', 'confirmed', 'Active', 'active']);
 
     if (bookingsError) {
-      throw bookingsError;
+      console.error('Error checking bookings:', bookingsError);
+      throw new Error(`Failed to check bookings: ${bookingsError.message}`);
     }
+
+    console.log('Bookings found:', bookings?.length || 0);
 
     if (bookings && bookings.length > 0) {
       return {
@@ -43,10 +48,14 @@ export async function checkVehicleAvailability(
       .gt('blocked_until', pickupISO);
 
     if (blocksError) {
-      throw blocksError;
+      console.error('Error checking vehicle blocks:', blocksError);
+      throw new Error(`Failed to check vehicle blocks: ${blocksError.message}`);
     }
 
+    console.log('Vehicle blocks found:', blocks?.length || 0);
+
     if (blocks && blocks.length > 0) {
+      console.log('Vehicle is blocked:', blocks[0]);
       return {
         isAvailable: false,
         reason: blocks[0].reason || 'Vehicle is blocked for this period',
@@ -54,10 +63,12 @@ export async function checkVehicleAvailability(
       };
     }
 
+    console.log('Vehicle is available');
     return {
       isAvailable: true
     };
   } catch (error) {
+    console.error('Availability check failed:', error);
     throw error;
   }
 }

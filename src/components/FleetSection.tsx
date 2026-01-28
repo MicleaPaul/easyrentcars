@@ -86,6 +86,8 @@ export function FleetSection() {
         const pickupISO = `${pickupDate}T00:00:00Z`;
         const dropoffISO = `${returnDate}T23:59:59Z`;
 
+        console.log('Fleet: Checking availability from', pickupISO, 'to', dropoffISO);
+
         const { data: bookings, error: bookingsError } = await supabase
           .from('bookings')
           .select('vehicle_id')
@@ -95,7 +97,12 @@ export function FleetSection() {
 
         if (cancelled) return;
 
-        if (bookingsError) throw bookingsError;
+        if (bookingsError) {
+          console.error('Fleet: Error fetching bookings:', bookingsError);
+          throw bookingsError;
+        }
+
+        console.log('Fleet: Found', bookings?.length || 0, 'conflicting bookings');
 
         const { data: blocks, error: blocksError } = await supabase
           .from('vehicle_blocks')
@@ -105,16 +112,25 @@ export function FleetSection() {
 
         if (cancelled) return;
 
-        if (blocksError) throw blocksError;
+        if (blocksError) {
+          console.error('Fleet: Error fetching vehicle blocks:', blocksError);
+          throw blocksError;
+        }
+
+        console.log('Fleet: Found', blocks?.length || 0, 'vehicle blocks');
 
         const unavailableVehicleIds = new Set([
           ...(bookings || []).map(b => b.vehicle_id),
           ...(blocks || []).map(b => b.vehicle_id)
         ]);
 
+        console.log('Fleet: Unavailable vehicle IDs:', Array.from(unavailableVehicleIds));
+
         const available = vehicles
           .filter(v => !unavailableVehicleIds.has(v.id))
           .map(v => v.id);
+
+        console.log('Fleet: Available vehicles count:', available.length, 'out of', vehicles.length);
 
         if (!cancelled) {
           setAvailableVehicles(available);
@@ -122,9 +138,8 @@ export function FleetSection() {
       } catch (error) {
         if (!cancelled) {
           console.error('Error checking availability:', error);
-          // On error, show all vehicles as available instead of hiding them
-          const allVehicleIds = vehicles.map(v => v.id);
-          setAvailableVehicles(allVehicleIds);
+          // On error, keep the current state instead of showing all vehicles
+          // This prevents blocked vehicles from appearing when there's an error
         }
       }
     }
@@ -175,9 +190,8 @@ export function FleetSection() {
 
       setAvailableVehicles(available);
     } catch (error) {
-      // On error, show all vehicles instead of hiding them
-      const allVehicleIds = vehicles.map(v => v.id);
-      setAvailableVehicles(allVehicleIds);
+      console.error('Error checking vehicle availability:', error);
+      // On error, keep current state to prevent blocked vehicles from appearing
     }
   }
 

@@ -117,7 +117,9 @@ export function CarDetailsPage({ onBack }: CarDetailsPageProps) {
       setContextReturnDate(dropoffDate);
       navigate(`/booking/${id}`);
     } catch (error) {
-      alert(t('availability.checkError') || 'An error occurred while checking availability. Please try again.');
+      console.error('Availability check error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(t('availability.checkError') || `An error occurred while checking availability: ${errorMessage}. Please try again or contact support.`);
     } finally {
       setCheckingAvailability(false);
     }
