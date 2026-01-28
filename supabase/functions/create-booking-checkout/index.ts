@@ -4,6 +4,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
 const ALLOWED_ORIGINS = [
   'https://easyrentcars.rentals',
+  'https://www.easyrentcars.rentals',
   'http://localhost:5173',
   'http://localhost:3000',
 ];
