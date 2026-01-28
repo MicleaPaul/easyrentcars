@@ -89,7 +89,7 @@ export function FleetSection() {
         const { data: bookings, error: bookingsError } = await supabase
           .from('bookings')
           .select('vehicle_id')
-          .in('booking_status', ['Confirmed', 'Active', 'confirmed', 'active'])
+          .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment'])
           .lt('pickup_date', dropoffISO)
           .gt('return_date', pickupISO);
 
@@ -122,7 +122,9 @@ export function FleetSection() {
       } catch (error) {
         if (!cancelled) {
           console.error('Error checking availability:', error);
-          setAvailableVehicles([]);
+          // On error, show all vehicles as available instead of hiding them
+          const allVehicleIds = vehicles.map(v => v.id);
+          setAvailableVehicles(allVehicleIds);
         }
       }
     }
@@ -146,7 +148,7 @@ export function FleetSection() {
         .select('vehicle_id, pickup_date, return_date, booking_status')
         .lt('pickup_date', dropoffISO)
         .gt('return_date', pickupISO)
-        .in('booking_status', ['confirmed', 'Confirmed', 'active', 'pending', 'PendingPayment']);
+        .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment']);
 
       if (bookingsError) {
         throw bookingsError;
