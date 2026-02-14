@@ -1,44 +1,90 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import nodemailer from 'npm:nodemailer@6.9.16';
+import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
-const ALLOWED_ORIGINS = [
-  'https://easyrentgraz.rentals',
-  'https://www.easyrentgraz.rentals',
-  'https://easyrentcars.rentals',
-  'https://www.easyrentcars.rentals',
-  'http://localhost:5173',
-  'http://localhost:3000',
-];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get('Origin') || '';
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
-  };
-}
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+};
 
 const GMAIL_USER = Deno.env.get('GMAIL_USER') || 'easyrentgraz@gmail.com';
 const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD');
 const TO_EMAIL = 'easyrentgraz@gmail.com';
 
-Deno.serve(async (req: Request) => {
-  const corsHeaders = getCorsHeaders(req);
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+);
 
+function sanitizeInput(str: string): string {
+  return str
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
     const { name, email, phone, message, language = 'en' } = await req.json();
 
     if (!name || !email || !message) {
-      throw new Error('Missing required fields: name, email, and message');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing required fields: name, email, and message' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (message.length < 5) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Message is too short' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('cf-connecting-ip') || null;
+
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const { count: recentCount } = await supabase
+      .from('inquiries')
+      .select('*', { count: 'exact', head: true })
+      .eq('email', email)
+      .gte('created_at', tenMinutesAgo);
+
+    if (recentCount !== null && recentCount >= 3) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Too many messages. Please try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const safeName = sanitizeInput(name);
+    const safeEmail = sanitizeInput(email);
+    const safePhone = phone ? sanitizeInput(phone) : '';
+    const safeMessage = sanitizeInput(message);
+
+    const { data: inquiry, error: dbError } = await supabase
+      .from('inquiries')
+      .insert({
+        name: name.substring(0, 200),
+        email: email.substring(0, 200),
+        phone: phone ? phone.substring(0, 50) : null,
+        message: message.substring(0, 5000),
+        language,
+        email_sent: false,
+        ip_address: ipAddress,
+      })
+      .select('id')
+      .single();
+
+    if (dbError) {
+      console.error('Failed to save inquiry to DB:', dbError);
     }
 
     const translations: Record<string, Record<string, string>> = {
@@ -231,40 +277,40 @@ Deno.serve(async (req: Request) => {
     <div class="gold-bar"></div>
     <div class="content">
       <p style="color: #666; font-size: 16px; margin-bottom: 25px;">${t.intro}</p>
-      
+
       <div class="section">
         <div class="section-title">${t.customerDetails}</div>
-        
+
         <div class="info-item">
           <div class="info-label">${t.customerName}</div>
-          <div class="info-value">${name}</div>
+          <div class="info-value">${safeName}</div>
         </div>
-        
+
         <div class="info-item">
           <div class="info-label">${t.customerEmail}</div>
           <div class="info-value">
-            <a href="mailto:${email}" style="color: #D4AF37; text-decoration: none;">${email}</a>
+            <a href="mailto:${safeEmail}" style="color: #D4AF37; text-decoration: none;">${safeEmail}</a>
           </div>
         </div>
-        
-        ${phone ? `
+
+        ${safePhone ? `
         <div class="info-item">
           <div class="info-label">${t.customerPhone}</div>
           <div class="info-value">
-            <a href="tel:${phone}" style="color: #D4AF37; text-decoration: none;">${phone}</a>
+            <a href="tel:${safePhone}" style="color: #D4AF37; text-decoration: none;">${safePhone}</a>
           </div>
         </div>
         ` : ''}
       </div>
-      
+
       <div class="section">
         <div class="section-title">${t.customerMessage}</div>
-        <div class="message-box">${message}</div>
+        <div class="message-box">${safeMessage}</div>
       </div>
-      
+
       <div style="text-align: center; margin-top: 30px;">
-        <a href="mailto:${email}?subject=Re: Your inquiry to EasyRentCars" class="reply-button">
-          Reply to ${name}
+        <a href="mailto:${safeEmail}?subject=Re: Your inquiry to EasyRentCars" class="reply-button">
+          Reply to ${safeName}
         </a>
       </div>
     </div>
@@ -283,7 +329,7 @@ Deno.serve(async (req: Request) => {
 </html>`;
 
     let emailSent = false;
-    let emailError = null;
+    let emailError: string | null = null;
 
     if (GMAIL_APP_PASSWORD) {
       try {
@@ -312,25 +358,36 @@ Deno.serve(async (req: Request) => {
         emailError = err instanceof Error ? err.message : String(err);
       }
     } else {
-      console.log('GMAIL_APP_PASSWORD not configured.');
+      console.warn('GMAIL_APP_PASSWORD not configured.');
       emailError = 'GMAIL_APP_PASSWORD not configured';
     }
 
+    if (inquiry?.id) {
+      await supabase
+        .from('inquiries')
+        .update({
+          email_sent: emailSent,
+          email_sent_at: emailSent ? new Date().toISOString() : null,
+          email_error: emailError,
+        })
+        .eq('id', inquiry.id);
+    }
+
+    const saved = !!inquiry?.id;
+
     return new Response(
       JSON.stringify({
-        success: emailSent,
-        message: emailSent
-          ? 'Contact message sent successfully'
-          : 'Failed to send contact message',
+        success: saved || emailSent,
+        message: saved
+          ? 'Your message has been received. We will get back to you soon.'
+          : emailSent
+            ? 'Contact message sent successfully'
+            : 'Failed to process your message',
         email_sent: emailSent,
-        error: emailError,
       }),
       {
-        status: emailSent ? 200 : 500,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
+        status: (saved || emailSent) ? 200 : 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   } catch (error: unknown) {
@@ -342,10 +399,7 @@ Deno.serve(async (req: Request) => {
       }),
       {
         status: 500,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   }

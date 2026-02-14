@@ -126,7 +126,7 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
 
   const isAfterHours = (time: string) => {
     const hour = parseInt(time.split(':')[0]);
-    return hour < 7 || hour >= 20;
+    return hour < 7 || hour > 20;
   };
 
   const calculateAfterHoursFee = () => {

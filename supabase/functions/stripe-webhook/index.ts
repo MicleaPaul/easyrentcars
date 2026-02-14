@@ -97,7 +97,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       .from('bookings')
       .select('id')
       .eq('vehicle_id', metadata.vehicle_id)
-      .in('booking_status', ['confirmed', 'active', 'pending_verification', 'pending_payment'])
+      .in('booking_status', ['Confirmed', 'Active', 'PendingVerification', 'PendingPayment'])
       .lt('pickup_date', returnISO)
       .gt('return_date', pickupISO);
 
@@ -172,12 +172,11 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       cleaning_fee: parseFloat(metadata.cleaning_fee || '0'),
       after_hours_fee: parseFloat(metadata.after_hours_fee || '0'),
       payment_method: metadata.payment_method,
-      payment_status: paymentType === 'deposit' ? 'partial' : 'paid',
+      payment_status: 'paid',
       booking_status: 'Confirmed',
       deposit_amount: paymentType === 'deposit' ? depositAmount : null,
       remaining_amount: paymentType === 'deposit' ? remainingAmount : null,
       deposit_paid_at: paymentType === 'deposit' ? new Date().toISOString() : null,
-      is_test_mode: false,
       notes: metadata.notes || null,
       language: metadata.language || 'de',
       guest_link_token: metadata.guest_link_token,
@@ -193,7 +192,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       .single();
 
     if (insertError) {
-      console.error('Error creating booking:', insertError);
+      console.error('Error creating booking:', JSON.stringify(insertError));
 
       if (session.payment_intent) {
         try {

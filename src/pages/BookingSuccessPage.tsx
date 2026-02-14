@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, Car, Calendar, MapPin, User, Mail, Phone, Download, Home, Clock, CreditCard, Banknote, FileText, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -39,6 +39,8 @@ interface BookingDetails {
   };
 }
 
+type VerificationState = 'verifying_payment' | 'creating_booking' | 'success' | 'failed';
+
 export function BookingSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -46,10 +48,14 @@ export function BookingSuccessPage() {
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [verificationState, setVerificationState] = useState<VerificationState>('verifying_payment');
   const [retryCount, setRetryCount] = useState(0);
+  const hasTriedFallback = useRef(false);
 
   const bookingId = searchParams.get('booking_id');
   const sessionId = searchParams.get('session_id');
+
+  const MAX_RETRIES = 15;
 
   const fetchBookingBySessionId = useCallback(async (stripeSessionId: string): Promise<BookingDetails | null> => {
     const { data, error: fetchError } = await supabase
@@ -143,6 +149,34 @@ export function BookingSuccessPage() {
     return { ...data, vehicle: vehicleData };
   }, []);
 
+  const verifyWithServer = useCallback(async (stripeSessionId: string): Promise<BookingDetails | null> => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-stripe-payment`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ session_id: stripeSessionId }),
+        }
+      );
+
+      if (!response.ok) return null;
+
+      const result = await response.json();
+
+      if (result.status === 'found' || result.status === 'created') {
+        return await fetchBookingBySessionId(stripeSessionId);
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  }, [fetchBookingBySessionId]);
+
   useEffect(() => {
     const loadBooking = async () => {
       try {
@@ -151,41 +185,54 @@ export function BookingSuccessPage() {
         if (sessionId) {
           bookingData = await fetchBookingBySessionId(sessionId);
 
-          if (!bookingData && retryCount < 10) {
+          if (!bookingData && retryCount < MAX_RETRIES) {
+            if (retryCount < 5) {
+              setVerificationState('verifying_payment');
+            } else {
+              setVerificationState('creating_booking');
+            }
+
+            const delay = retryCount < 5 ? 1500 : 2500;
             setTimeout(() => {
               setRetryCount(prev => prev + 1);
-            }, 2000);
+            }, delay);
             return;
+          }
+
+          if (!bookingData && retryCount >= MAX_RETRIES && !hasTriedFallback.current) {
+            hasTriedFallback.current = true;
+            setVerificationState('creating_booking');
+            bookingData = await verifyWithServer(sessionId);
           }
         } else if (bookingId) {
           bookingData = await fetchBookingById(bookingId);
         } else {
           setError('No booking reference provided');
+          setVerificationState('failed');
           setLoading(false);
           return;
         }
 
         if (!bookingData) {
-          if (sessionId && retryCount >= 10) {
-            setError('Booking is still being processed. Please check your email for confirmation.');
-          } else {
-            setError('Booking not found');
-          }
+          setVerificationState('failed');
+          setError('Booking is still being processed. Please check your email for confirmation or contact us.');
           setLoading(false);
           return;
         }
 
+        setVerificationState('success');
         setBooking(bookingData);
         setLoading(false);
       } catch (err: any) {
         console.error('Error fetching booking:', err);
+        setVerificationState('failed');
         setError('Failed to load booking details');
         setLoading(false);
       }
     };
 
     loadBooking();
-  }, [bookingId, sessionId, retryCount, fetchBookingBySessionId, fetchBookingById]);
+  }, [bookingId, sessionId, retryCount, fetchBookingBySessionId, fetchBookingById, verifyWithServer]);
 
   const calculateDays = () => {
     if (!booking) return 0;
@@ -245,18 +292,37 @@ export function BookingSuccessPage() {
     }
   };
 
+  const getStatusMessage = () => {
+    switch (verificationState) {
+      case 'verifying_payment':
+        return t('bookingSuccess.verifyingPayment') || 'Verifying your payment...';
+      case 'creating_booking':
+        return t('bookingSuccess.creatingBooking') || 'Confirming your booking...';
+      default:
+        return t('bookingSuccess.loading') || 'Loading...';
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-6">
           <Loader2 className="w-12 h-12 text-[#D4AF37] animate-spin mx-auto mb-4" />
           <p className="text-white font-semibold mb-2">
-            {sessionId ? 'Processing your payment...' : 'Loading booking details...'}
+            {getStatusMessage()}
           </p>
           {sessionId && retryCount > 0 && (
-            <p className="text-[#9AA0A6] text-sm">
-              Confirming your booking ({retryCount}/10)
-            </p>
+            <div className="mt-4">
+              <div className="w-full bg-[#1a1d21] rounded-full h-2 mb-3">
+                <div
+                  className="bg-[#D4AF37] h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min((retryCount / MAX_RETRIES) * 100, 100)}%` }}
+                />
+              </div>
+              <p className="text-[#9AA0A6] text-sm">
+                {t('bookingSuccess.pleaseWait') || 'Please wait, this may take a moment...'}
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -268,11 +334,28 @@ export function BookingSuccessPage() {
       <div className="min-h-screen bg-[#0B0C0F] pt-24 pb-16">
         <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-[800px]">
           <div className="card-luxury p-8 text-center">
-            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-8 h-8 text-red-500" />
+            <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8 text-amber-500" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Booking Not Found</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {t('bookingSuccess.processingTitle') || 'Booking Being Processed'}
+            </h1>
             <p className="text-[#9AA0A6] mb-6">{error || 'Unable to find your booking details'}</p>
+            <div className="bg-[#111316] rounded-lg p-4 mb-6 text-left">
+              <p className="text-[#9AA0A6] text-sm mb-2">
+                {t('bookingSuccess.contactSupport') || 'Your payment was successful. If your booking does not appear shortly, please contact us:'}
+              </p>
+              <p className="text-[#D4AF37] text-sm">
+                <a href="mailto:info@easyrentcars.rentals" className="hover:text-[#F4D03F]">info@easyrentcars.rentals</a>
+                {' '} | {' '}
+                <a href="tel:+436704070707" className="hover:text-[#F4D03F]">+43 670 40 70 707</a>
+              </p>
+              {sessionId && (
+                <p className="text-[#9AA0A6] text-xs mt-2">
+                  Ref: {sessionId.slice(0, 16)}...
+                </p>
+              )}
+            </div>
             <button
               onClick={() => navigate('/')}
               className="btn-primary px-6 py-3"
@@ -372,15 +455,11 @@ export function BookingSuccessPage() {
                 </p>
                 <p className={`text-sm mt-1 ${
                   booking.payment_status === 'paid' || booking.payment_status === 'completed'
-                    ? 'text-green-400'
-                    : booking.payment_status === 'partial'
-                    ? 'text-amber-400'
+                    ? depositAmount > 0 ? 'text-amber-400' : 'text-green-400'
                     : 'text-[#9AA0A6]'
                 }`}>
                   {booking.payment_status === 'paid' || booking.payment_status === 'completed'
-                    ? 'Fully Paid'
-                    : booking.payment_status === 'partial'
-                    ? 'Deposit Paid'
+                    ? depositAmount > 0 ? 'Deposit Paid' : 'Fully Paid'
                     : 'Pending'}
                 </p>
               </div>

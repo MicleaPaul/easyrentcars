@@ -613,7 +613,7 @@ function BookingDetailModal({
 
   const isAfterHours = (dateString: string) => {
     const hour = new Date(dateString).getHours();
-    return hour < 7 || hour >= 20;
+    return hour < 7 || hour > 20;
   };
 
   const calculateBaseCost = () => {
