@@ -67,11 +67,11 @@ async function checkVehicleAvailabilityFallback(
   try {
     const { data: bookings, error: bookingsError } = await supabase
       .from('bookings')
-      .select('id, pickup_date, return_date, status')
+      .select('id, pickup_date, return_date, booking_status')
       .eq('vehicle_id', vehicleId)
       .lt('pickup_date', returnISO)
       .gt('return_date', pickupISO)
-      .in('status', ['confirmed', 'pending']);
+      .in('booking_status', ['Confirmed', 'Active', 'PendingPayment', 'PendingVerification']);
 
     if (bookingsError) {
       console.error('Error checking bookings:', bookingsError);
