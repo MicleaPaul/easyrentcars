@@ -111,11 +111,17 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
     };
   }, [id]);
 
+  const businessHours = settings.business_hours || {};
+  const weekdayOpens = parseInt((businessHours.weekday?.opens || '07:00').split(':')[0]);
+  const weekdayCloses = parseInt((businessHours.weekday?.closes || '21:00').split(':')[0]);
+  const minHour = Math.min(weekdayOpens, parseInt((businessHours.weekend?.opens || '07:00').split(':')[0]));
+  const maxHour = Math.max(weekdayCloses, parseInt((businessHours.weekend?.closes || '20:00').split(':')[0]));
+
   const generateTimeOptions = () => {
     const times = [];
-    for (let hour = 7; hour <= 20; hour++) {
+    for (let hour = minHour; hour <= maxHour; hour++) {
       times.push(`${hour.toString().padStart(2, '0')}:00`);
-      if (hour < 20) {
+      if (hour < maxHour) {
         times.push(`${hour.toString().padStart(2, '0')}:30`);
       }
     }
@@ -124,15 +130,17 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
 
   const timeOptions = generateTimeOptions();
 
+  const afterHoursFeeAmount = settings.after_hours_fee?.amount || 30;
+
   const isAfterHours = (time: string) => {
     const hour = parseInt(time.split(':')[0]);
-    return hour < 7 || hour > 20;
+    return hour < minHour || hour > maxHour;
   };
 
   const calculateAfterHoursFee = () => {
     const afterHoursPickup = isAfterHours(pickupTime);
     const afterHoursReturn = isAfterHours(returnTime);
-    return (afterHoursPickup || afterHoursReturn) ? 30 : 0;
+    return (afterHoursPickup || afterHoursReturn) ? afterHoursFeeAmount : 0;
   };
 
   const calculateDays = () => {

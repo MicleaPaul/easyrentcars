@@ -109,8 +109,8 @@ export function EmailVerificationPending({ email, bookingId, onResend }: EmailVe
           </p>
           <p className="text-xs text-[#9AA0A6] mt-2">
             Need help? Contact us at{' '}
-            <a href="mailto:support@easyrentcars.com" className="text-[#D4AF37] hover:text-[#F4D03F]">
-              support@easyrentcars.com
+            <a href="mailto:easyrentgraz@gmail.com" className="text-[#D4AF37] hover:text-[#F4D03F]">
+              easyrentgraz@gmail.com
             </a>
           </p>
         </div>

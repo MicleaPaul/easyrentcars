@@ -226,7 +226,7 @@ export function VehicleEditModal({ vehicle, isOpen, onClose, onSave }: VehicleEd
                 type="number"
                 required
                 min="2000"
-                max="2025"
+                max={new Date().getFullYear() + 1}
                 value={formData.year}
                 onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
                 className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"

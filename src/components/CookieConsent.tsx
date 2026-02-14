@@ -2,18 +2,53 @@ import { useState, useEffect } from 'react';
 import { Cookie, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
+const COOKIE_CONSENT_KEY = 'cookie_consent';
+
+interface CookiePreferences {
+  necessary: boolean;
+  functional: boolean;
+  analytics: boolean;
+  marketing: boolean;
+  timestamp: string;
+}
+
+function getSavedPreferences(): CookiePreferences | null {
+  try {
+    const saved = localStorage.getItem(COOKIE_CONSENT_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // ignore parse errors
+  }
+  return null;
+}
+
+function savePreferences(prefs: Omit<CookiePreferences, 'necessary' | 'timestamp'>) {
+  const data: CookiePreferences = {
+    necessary: true,
+    ...prefs,
+    timestamp: new Date().toISOString(),
+  };
+  localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(data));
+}
+
 export function CookieConsent() {
   const { t } = useLanguage();
   const [showBanner, setShowBanner] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Cookie preferences state
   const [functional, setFunctional] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
-    // Always show banner on page load
+    const saved = getSavedPreferences();
+    if (saved) {
+      setFunctional(saved.functional);
+      setAnalytics(saved.analytics);
+      setMarketing(saved.marketing);
+      return;
+    }
+
     setTimeout(() => {
       setShowBanner(true);
       setTimeout(() => setIsVisible(true), 100);
@@ -21,22 +56,18 @@ export function CookieConsent() {
   }, []);
 
   const handleAcceptAll = () => {
-    // Enable all cookie types
     setFunctional(true);
     setAnalytics(true);
     setMarketing(true);
-
-    // Close banner for current session only (no localStorage)
+    savePreferences({ functional: true, analytics: true, marketing: true });
     setTimeout(() => closeBanner(), 100);
   };
 
   const handleAcceptNecessary = () => {
-    // Disable all optional cookies
     setFunctional(false);
     setAnalytics(false);
     setMarketing(false);
-
-    // Close banner for current session only (no localStorage)
+    savePreferences({ functional: false, analytics: false, marketing: false });
     setTimeout(() => closeBanner(), 100);
   };
 
@@ -82,10 +113,9 @@ export function CookieConsent() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-              {/* Necessary - Always active */}
               <div className="p-4 bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-white font-semibold text-sm">{t('cookies.necessary') || 'Necesare'}</h4>
+                  <h4 className="text-white font-semibold text-sm">{t('cookies.necessary') || 'Notwendig'}</h4>
                   <div
                     className="w-10 h-5 bg-[#D4AF37] rounded-full flex items-center justify-end px-1 transition-all duration-200"
                     aria-label="Always active"
@@ -94,11 +124,10 @@ export function CookieConsent() {
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
-                  {t('cookies.necessaryDesc') || 'Mereu active'}
+                  {t('cookies.necessaryDesc') || 'Immer aktiv'}
                 </p>
               </div>
 
-              {/* Functional - Toggleable */}
               <button
                 onClick={toggleFunctional}
                 className={`p-4 bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg transition-all duration-200 hover:border-[#D4AF37]/40 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 text-left ${
@@ -108,7 +137,7 @@ export function CookieConsent() {
                 aria-label={`Toggle functional cookies: ${functional ? 'enabled' : 'disabled'}`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-white font-semibold text-sm">{t('cookies.functional') || 'Funcționale'}</h4>
+                  <h4 className="text-white font-semibold text-sm">{t('cookies.functional') || 'Funktional'}</h4>
                   <div
                     className={`w-10 h-5 rounded-full flex items-center transition-all duration-200 ${
                       functional ? 'bg-[#D4AF37] justify-end px-1' : 'bg-[#9AA0A6]/30 justify-start px-1'
@@ -120,11 +149,10 @@ export function CookieConsent() {
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
-                  {t('cookies.functionalDesc') || 'Salvează setări'}
+                  {t('cookies.functionalDesc') || 'Einstellungen speichern'}
                 </p>
               </button>
 
-              {/* Analytics - Toggleable */}
               <button
                 onClick={toggleAnalytics}
                 className={`p-4 bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg transition-all duration-200 hover:border-[#D4AF37]/40 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 text-left ${
@@ -134,7 +162,7 @@ export function CookieConsent() {
                 aria-label={`Toggle analytics cookies: ${analytics ? 'enabled' : 'disabled'}`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-white font-semibold text-sm">{t('cookies.analytics') || 'Analiză'}</h4>
+                  <h4 className="text-white font-semibold text-sm">{t('cookies.analytics') || 'Analyse'}</h4>
                   <div
                     className={`w-10 h-5 rounded-full flex items-center transition-all duration-200 ${
                       analytics ? 'bg-[#D4AF37] justify-end px-1' : 'bg-[#9AA0A6]/30 justify-start px-1'
@@ -146,11 +174,10 @@ export function CookieConsent() {
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
-                  {t('cookies.analyticsDesc') || 'Analiză utilizare'}
+                  {t('cookies.analyticsDesc') || 'Nutzungsanalyse'}
                 </p>
               </button>
 
-              {/* Marketing - Toggleable */}
               <button
                 onClick={toggleMarketing}
                 className={`p-4 bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg transition-all duration-200 hover:border-[#D4AF37]/40 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 text-left ${
@@ -172,7 +199,7 @@ export function CookieConsent() {
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
-                  {t('cookies.marketingDesc') || 'Publicitate'}
+                  {t('cookies.marketingDesc') || 'Werbung'}
                 </p>
               </button>
             </div>

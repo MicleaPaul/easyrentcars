@@ -3,6 +3,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 
 const ALLOWED_ORIGINS = [
   'https://easyrentcars.rentals',
+  'https://www.easyrentcars.rentals',
   'http://localhost:5173',
   'http://localhost:3000',
 ];
@@ -25,6 +26,42 @@ const supabase = createClient(
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const FROM_EMAIL = 'info@easyrentcars.rentals';
 const FROM_NAME = 'EasyRentCars';
+
+function buildEmailFooter() {
+  return `<div class="footer"><p style="margin:0;font-size:12px;color:#666">EasyRentCars | Alte Poststra\u00DFe 286, 8053 Graz, Austria</p><p style="margin:5px 0 0;font-size:12px"><a href="mailto:easyrentgraz@gmail.com" style="color:#D4AF37;text-decoration:none">easyrentgraz@gmail.com</a> | <a href="tel:+436641584950" style="color:#D4AF37;text-decoration:none">+43 664 158 4950</a></p></div>`;
+}
+
+function buildEmailStyles() {
+  return `<style>body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:600px;margin:0 auto;background:#f5f5f5}.container{background:#fff;border-radius:12px;overflow:hidden;margin:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}.header{background:linear-gradient(135deg,#0B0C0F 0%,#1a1d21 100%);color:#fff;padding:40px 30px;text-align:center}.header h1{margin:0;font-size:28px;color:#D4AF37}.gold-bar{height:4px;background:linear-gradient(90deg,#D4AF37,#F4D03F,#D4AF37)}.content{padding:40px 30px}.button{display:inline-block;padding:16px 32px;background-color:#D4AF37;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;margin:20px 0;text-align:center}.link-box{background:#f8f8f8;padding:15px;border-radius:8px;word-break:break-all;margin:20px 0;font-family:monospace;font-size:14px;border:1px solid #ddd}.warning{background:#FFF8E1;border-left:4px solid #FFB300;padding:15px;margin:20px 0;border-radius:4px}.footer{background:#0B0C0F;color:#999;text-align:center;padding:30px;font-size:14px}</style>`;
+}
+
+function getEmailBodies(verificationLink: string): Record<string, string> {
+  const styles = buildEmailStyles();
+  const footer = buildEmailFooter();
+
+  const en = `<!DOCTYPE html><html><head><meta charset="utf-8">${styles}</head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Premium Car Rental Service</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Confirm Your Email Address</h2><p>Thank you for choosing EasyRentCars! To complete your booking, please verify your email address.</p><p>Click the button below to verify your email:</p><div style="text-align:center"><a href="${verificationLink}" class="button">Verify Email</a></div><p>Or copy and paste this link into your browser:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>This link will expire in 20 minutes.</strong></div><p style="color:#666;font-size:14px">If you didn't request this booking, please ignore this email.</p></div>${footer}</div></body></html>`;
+
+  const de = `<!DOCTYPE html><html><head><meta charset="utf-8">${styles}</head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Premium Autovermietung</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Best\u00E4tigen Sie Ihre E-Mail-Adresse</h2><p>Vielen Dank, dass Sie sich f\u00FCr EasyRentCars entschieden haben! Um Ihre Buchung abzuschlie\u00DFen, verifizieren Sie bitte Ihre E-Mail-Adresse.</p><p>Klicken Sie auf die Schaltfl\u00E4che unten, um Ihre E-Mail zu verifizieren:</p><div style="text-align:center"><a href="${verificationLink}" class="button">E-Mail Verifizieren</a></div><p>Oder kopieren Sie diesen Link in Ihren Browser:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>Dieser Link l\u00E4uft in 20 Minuten ab.</strong></div><p style="color:#666;font-size:14px">Wenn Sie diese Buchung nicht angefordert haben, ignorieren Sie bitte diese E-Mail.</p></div>${footer}</div></body></html>`;
+
+  const fr = `<!DOCTYPE html><html><head><meta charset="utf-8">${styles}</head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Location de Voitures Premium</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Confirmez Votre Adresse E-mail</h2><p>Merci d'avoir choisi EasyRentCars! Pour finaliser votre r\u00E9servation, veuillez v\u00E9rifier votre adresse e-mail.</p><p>Cliquez sur le bouton ci-dessous pour v\u00E9rifier votre e-mail:</p><div style="text-align:center"><a href="${verificationLink}" class="button">V\u00E9rifier l'E-mail</a></div><p>Ou copiez et collez ce lien dans votre navigateur:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>Ce lien expire dans 20 minutes.</strong></div><p style="color:#666;font-size:14px">Si vous n'avez pas demand\u00E9 cette r\u00E9servation, veuillez ignorer cet e-mail.</p></div>${footer}</div></body></html>`;
+
+  const it = `<!DOCTYPE html><html><head><meta charset="utf-8">${styles}</head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Noleggio Auto Premium</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Conferma il Tuo Indirizzo E-mail</h2><p>Grazie per aver scelto EasyRentCars! Per completare la prenotazione, verifica il tuo indirizzo e-mail.</p><p>Clicca il pulsante qui sotto per verificare la tua e-mail:</p><div style="text-align:center"><a href="${verificationLink}" class="button">Verifica E-mail</a></div><p>Oppure copia e incolla questo link nel tuo browser:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>Questo link scadr\u00E0 tra 20 minuti.</strong></div><p style="color:#666;font-size:14px">Se non hai richiesto questa prenotazione, ignora questa e-mail.</p></div>${footer}</div></body></html>`;
+
+  const es = `<!DOCTYPE html><html><head><meta charset="utf-8">${styles}</head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Alquiler de Coches Premium</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Confirma Tu Direcci\u00F3n de E-mail</h2><p>\u00A1Gracias por elegir EasyRentCars! Para completar tu reserva, verifica tu direcci\u00F3n de e-mail.</p><p>Haz clic en el bot\u00F3n de abajo para verificar tu e-mail:</p><div style="text-align:center"><a href="${verificationLink}" class="button">Verificar E-mail</a></div><p>O copia y pega este enlace en tu navegador:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>Este enlace caducar\u00E1 en 20 minutos.</strong></div><p style="color:#666;font-size:14px">Si no solicitaste esta reserva, ignora este correo electr\u00F3nico.</p></div>${footer}</div></body></html>`;
+
+  const ro = `<!DOCTYPE html><html><head><meta charset="utf-8">${styles}</head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">\u00CEnchiriere Auto Premium</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Confirm\u0103 Adresa de E-mail</h2><p>Mul\u021Bumim c\u0103 ai ales EasyRentCars! Pentru a finaliza rezervarea, te rug\u0103m s\u0103 verifici adresa de e-mail.</p><p>D\u0103 clic pe butonul de mai jos pentru a verifica e-mailul:</p><div style="text-align:center"><a href="${verificationLink}" class="button">Verific\u0103 E-mail</a></div><p>Sau copiaz\u0103 \u0219i lipe\u0219te acest link \u00EEn browser:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>Acest link expir\u0103 \u00EEn 20 de minute.</strong></div><p style="color:#666;font-size:14px">Dac\u0103 nu ai solicitat aceast\u0103 rezervare, te rug\u0103m s\u0103 ignori acest e-mail.</p></div>${footer}</div></body></html>`;
+
+  return { en, de, fr, it, es, ro };
+}
+
+const EMAIL_SUBJECTS: Record<string, string> = {
+  en: 'Confirm Your Booking - EasyRentCars',
+  de: 'Best\u00E4tigen Sie Ihre Buchung - EasyRentCars',
+  fr: 'Confirmez Votre R\u00E9servation - EasyRentCars',
+  it: 'Conferma la Tua Prenotazione - EasyRentCars',
+  es: 'Confirma Tu Reserva - EasyRentCars',
+  ro: 'Confirm\u0103 Rezervarea Ta - EasyRentCars',
+};
 
 Deno.serve(async (req: Request) => {
   const corsHeaders = getCorsHeaders(req);
@@ -62,16 +99,9 @@ Deno.serve(async (req: Request) => {
 
     const verificationLink = `${Deno.env.get('SITE_URL')}/verify-email?token=${token}`;
 
-    const emailSubject = {
-      en: 'Confirm Your Booking - EasyRentCars',
-      de: 'Bestaetigen Sie Ihre Buchung - EasyRentCars',
-      fr: 'Confirmez Votre Reservation - EasyRentCars',
-    }[language] || 'Confirm Your Booking - EasyRentCars';
-
-    const emailBody = {
-      en: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:600px;margin:0 auto;background:#f5f5f5}.container{background:#fff;border-radius:12px;overflow:hidden;margin:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}.header{background:linear-gradient(135deg,#0B0C0F 0%,#1a1d21 100%);color:#fff;padding:40px 30px;text-align:center}.header h1{margin:0;font-size:28px;color:#D4AF37}.gold-bar{height:4px;background:linear-gradient(90deg,#D4AF37,#F4D03F,#D4AF37)}.content{padding:40px 30px}.button{display:inline-block;padding:16px 32px;background-color:#D4AF37;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;margin:20px 0;text-align:center}.link-box{background:#f8f8f8;padding:15px;border-radius:8px;word-break:break-all;margin:20px 0;font-family:monospace;font-size:14px;border:1px solid #ddd}.warning{background:#FFF8E1;border-left:4px solid #FFB300;padding:15px;margin:20px 0;border-radius:4px}.footer{background:#0B0C0F;color:#999;text-align:center;padding:30px;font-size:14px}</style></head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Premium Car Rental Service</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Confirm Your Email Address</h2><p>Thank you for choosing EasyRentCars! To complete your booking, please verify your email address.</p><p>Click the button below to verify your email:</p><div style="text-align:center"><a href="${verificationLink}" class="button">Verify Email</a></div><p>Or copy and paste this link into your browser:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>This link will expire in 20 minutes.</strong></div><p style="color:#666;font-size:14px">If you didn't request this booking, please ignore this email.</p></div><div class="footer"><p style="margin:0;font-size:12px;color:#666">EasyRentCars | Alte Poststrasse 152, 8020 Graz, Austria</p><p style="margin:5px 0 0;font-size:12px"><a href="mailto:info@easyrentcars.rentals" style="color:#D4AF37;text-decoration:none">info@easyrentcars.rentals</a> | <a href="tel:+436704070707" style="color:#D4AF37;text-decoration:none">+43 670 40 70 707</a></p></div></div></body></html>`,
-      de: `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;max-width:600px;margin:0 auto;background:#f5f5f5}.container{background:#fff;border-radius:12px;overflow:hidden;margin:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1)}.header{background:linear-gradient(135deg,#0B0C0F 0%,#1a1d21 100%);color:#fff;padding:40px 30px;text-align:center}.header h1{margin:0;font-size:28px;color:#D4AF37}.gold-bar{height:4px;background:linear-gradient(90deg,#D4AF37,#F4D03F,#D4AF37)}.content{padding:40px 30px}.button{display:inline-block;padding:16px 32px;background-color:#D4AF37;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;margin:20px 0;text-align:center}.link-box{background:#f8f8f8;padding:15px;border-radius:8px;word-break:break-all;margin:20px 0;font-family:monospace;font-size:14px;border:1px solid #ddd}.warning{background:#FFF8E1;border-left:4px solid#FFB300;padding:15px;margin:20px 0;border-radius:4px}.footer{background:#0B0C0F;color:#999;text-align:center;padding:30px;font-size:14px}</style></head><body><div class="container"><div class="header"><h1>EasyRentCars</h1><p style="margin:10px 0 0;opacity:0.9">Premium Autovermietung</p></div><div class="gold-bar"></div><div class="content"><h2 style="color:#0B0C0F;margin:0 0 20px">Bestaetigen Sie Ihre E-Mail-Adresse</h2><p>Vielen Dank, dass Sie sich fuer EasyRentCars entschieden haben! Um Ihre Buchung abzuschliessen, verifizieren Sie bitte Ihre E-Mail-Adresse.</p><p>Klicken Sie auf die Schaltflaeche unten, um Ihre E-Mail zu verifizieren:</p><div style="text-align:center"><a href="${verificationLink}" class="button">E-Mail Verifizieren</a></div><p>Oder kopieren Sie diesen Link in Ihren Browser:</p><div class="link-box">${verificationLink}</div><div class="warning"><strong>Dieser Link laeuft in 20 Minuten ab.</strong></div><p style="color:#666;font-size:14px">Wenn Sie diese Buchung nicht angefordert haben, ignorieren Sie bitte diese E-Mail.</p></div><div class="footer"><p style="margin:0;font-size:12px;color:#666">EasyRentCars | Alte Poststrasse 152, 8020 Graz, Austria</p><p style="margin:5px 0 0;font-size:12px"><a href="mailto:info@easyrentcars.rentals" style="color:#D4AF37;text-decoration:none">info@easyrentcars.rentals</a> | <a href="tel:+436704070707" style="color:#D4AF37;text-decoration:none">+43 670 40 70 707</a></p></div></div></body></html>`,
-    }[language] || emailBody.en;
+    const emailSubject = EMAIL_SUBJECTS[language] || EMAIL_SUBJECTS.en;
+    const bodies = getEmailBodies(verificationLink);
+    const emailBody = bodies[language] || bodies.en;
 
     let emailSent = false;
     let emailError = null;

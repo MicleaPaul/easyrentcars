@@ -73,7 +73,7 @@ export function CheapCarRentalGrazPage() {
               View Budget Cars
             </button>
             <a
-              href="tel:+436643408887"
+              href="tel:+436641584950"
               className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-lg text-lg transition-all inline-block"
             >
               <Phone className="w-5 h-5 mr-2 inline" />

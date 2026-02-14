@@ -7,7 +7,7 @@ export type VehicleStatus = 'available' | 'maintenance' | 'rented';
 
 export type PaymentMethod = 'stripe' | 'cash';
 export type PaymentStatus = 'pending' | 'paid' | 'failed';
-export type BookingStatus = 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
+export type BookingStatus = 'draft' | 'PendingVerification' | 'PendingPayment' | 'Confirmed' | 'Active' | 'Completed' | 'Cancelled' | 'Expired';
 
 export type PenaltyType = 'smoking' | 'late_return' | 'damage' | 'other';
 
@@ -85,6 +85,8 @@ export interface FAQ {
   answer_it: string;
   question_es: string;
   answer_es: string;
+  question_ro: string;
+  answer_ro: string;
   is_popular: boolean;
   display_order: number;
   is_hidden: boolean;

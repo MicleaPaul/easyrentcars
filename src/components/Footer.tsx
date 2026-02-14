@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Phone, MapPin, Car } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSiteSettings } from '../hooks/useSiteSettings';
@@ -7,7 +7,28 @@ import { Logo } from './Logo';
 export function Footer() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const { settings } = useSiteSettings();
+
+  const scrollToSection = (sectionId: string) => {
+    const scrollToElement = (element: HTMLElement) => {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    };
+
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) scrollToElement(section);
+      }, 300);
+    } else {
+      const section = document.getElementById(sectionId);
+      if (section) scrollToElement(section);
+    }
+  };
 
   const contactInfo = settings.contact_info || {};
   const address = contactInfo.address || {};
@@ -109,15 +130,15 @@ export function Footer() {
             </h3>
             <ul className="space-y-1 xs:space-y-2 sm:space-y-3">
               {[
-                { key: 'home', label: t('footer.home'), action: () => navigate('/') },
-                { key: 'fleet', label: t('footer.fleet'), action: () => navigate('/') },
+                { key: 'home', label: t('footer.home'), action: () => { navigate('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+                { key: 'fleet', label: t('footer.fleet'), action: () => scrollToSection('fleet') },
                 { key: 'rentacar', label: 'Rent a Car Graz', action: () => navigate('/rent-a-car-graz') },
                 { key: 'carrental', label: 'Car Rental Graz', action: () => navigate('/car-rental-graz') },
                 { key: 'cheap', label: 'Cheap Car Rental', action: () => navigate('/cheap-car-rental-graz') },
                 { key: 'premium', label: 'Premium Car Rental', action: () => navigate('/premium-car-rental-graz') },
-                { key: 'faq', label: t('footer.faq'), action: () => navigate('/') },
+                { key: 'faq', label: t('footer.faq'), action: () => scrollToSection('faq') },
                 { key: 'terms', label: t('footer.terms'), action: () => navigate('/agb') },
-                { key: 'contact', label: t('footer.contact'), action: () => navigate('/') },
+                { key: 'contact', label: t('footer.contact'), action: () => scrollToSection('contact') },
               ].map((link) => (
                   <li key={link.key}>
                     <button

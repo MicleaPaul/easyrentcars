@@ -128,9 +128,9 @@ export function BookingsManagement() {
   const getStatusColor = (status: string) => {
     const normalizedStatus = status.toLowerCase();
     switch (normalizedStatus) {
-      case 'pending':
       case 'pendingpayment':
       case 'pendingverification':
+      case 'draft':
         return 'bg-yellow-500/10 text-yellow-500';
       case 'confirmed':
         return 'bg-green-500/10 text-green-500';
@@ -182,8 +182,7 @@ export function BookingsManagement() {
   };
 
   const pendingApprovalCount = bookings.filter(
-    (b) => (b.booking_status.toLowerCase() === 'pending' ||
-            b.booking_status === 'PendingPayment' ||
+    (b) => (b.booking_status === 'PendingPayment' ||
             b.booking_status === 'PendingVerification') &&
            (b.payment_status === 'paid' || b.payment_status === 'completed')
   ).length;
@@ -243,11 +242,13 @@ export function BookingsManagement() {
             className="bg-[#0B0C0F] text-[#F5F7FA] px-4 py-2 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
           >
             <option value="all">{t('admin.allStatus')}</option>
-            <option value="pending">{t('admin.pending')}</option>
-            <option value="confirmed">{t('admin.confirmed')}</option>
-            <option value="active">{t('admin.active')}</option>
-            <option value="completed">{t('admin.completed')}</option>
-            <option value="cancelled">{t('admin.cancelled')}</option>
+            <option value="PendingPayment">{t('admin.pending')} (Payment)</option>
+            <option value="PendingVerification">{t('admin.pending')} (Verification)</option>
+            <option value="Confirmed">{t('admin.confirmed')}</option>
+            <option value="Active">{t('admin.active')}</option>
+            <option value="Completed">{t('admin.completed')}</option>
+            <option value="Cancelled">{t('admin.cancelled')}</option>
+            <option value="Expired">Expired</option>
           </select>
           <select
             value={fuelFilter}
@@ -845,7 +846,7 @@ function BookingDetailModal({
             />
           </div>
 
-          {booking.booking_status === 'pending' && booking.payment_status === 'paid' && (
+          {(booking.booking_status === 'PendingPayment' || booking.booking_status === 'PendingVerification') && booking.payment_status === 'paid' && (
             <div className="flex gap-4 pt-4 border-t border-[#D4AF37]/20">
               <button
                 onClick={handleReject}

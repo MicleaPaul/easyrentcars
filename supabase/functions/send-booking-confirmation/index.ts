@@ -2,11 +2,22 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.49.1';
 import nodemailer from 'npm:nodemailer@6.9.16';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
-};
+const ALLOWED_ORIGINS = [
+  'https://easyrentcars.rentals',
+  'https://www.easyrentcars.rentals',
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  };
+}
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -18,6 +29,8 @@ const GMAIL_APP_PASSWORD = Deno.env.get('GMAIL_APP_PASSWORD');
 const BUSINESS_EMAIL = 'easyrentgraz@gmail.com';
 
 Deno.serve(async (req: Request) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
