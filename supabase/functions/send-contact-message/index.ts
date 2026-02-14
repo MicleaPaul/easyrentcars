@@ -330,11 +330,11 @@ Deno.serve(async (req: Request) => {
     <div class="footer">
       <p style="margin: 0; font-size: 12px; color: #666;">${t.footer}</p>
       <p style="margin: 10px 0 0; font-size: 12px;">
-        <a href="mailto:info@easyrentcars.rentals">info@easyrentcars.rentals</a> |
-        <a href="tel:+436704070707">+43 670 40 70 707</a>
+        <a href="mailto:easyrentgraz@gmail.com">easyrentgraz@gmail.com</a> |
+        <a href="tel:+436641584950">+43 664 158 4950</a>
       </p>
       <p style="margin: 10px 0 0; font-size: 12px; color: #666;">
-        EasyRentCars | Alte Poststrasse 152, 8020 Graz, Austria
+        EasyRentCars | Alte Poststra&szlig;e 286, 8053 Graz, Austria
       </p>
     </div>
   </div>

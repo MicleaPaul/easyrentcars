@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { useLanguage } from './contexts/LanguageContext';
-import { useBooking } from './contexts/BookingContext';
 import { HomePage } from './pages/HomePage';
 import { CarDetailsPage } from './pages/CarDetailsPage';
 import { BookingPageNew } from './pages/BookingPageNew';
@@ -28,18 +27,12 @@ import { ScrollToTop } from './components/ScrollToTop';
 
 function AppContent() {
   const { t, language, setLanguage } = useLanguage();
-  const { clearBookingData } = useBooking();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const isAuthPage = location.pathname === '/login';
   const isAdminPage = location.pathname.startsWith('/admin');
-
-  const handleBookingComplete = () => {
-    clearBookingData();
-    navigate('/');
-  };
 
   const handleScrollToSection = (sectionId: string) => {
     const headerOffset = 100;
@@ -157,7 +150,6 @@ function AppContent() {
             element={
               <BookingPageNew
                 onBack={() => navigate(-1)}
-                onComplete={handleBookingComplete}
               />
             }
           />

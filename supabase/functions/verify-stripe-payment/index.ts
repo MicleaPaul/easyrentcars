@@ -83,6 +83,48 @@ Deno.serve(async (req: Request) => {
     const pickupDateTime = `${metadata.pickup_date}T${metadata.pickup_time}:00Z`;
     const returnDateTime = `${metadata.return_date}T${metadata.return_time}:00Z`;
 
+    const pickupISO = `${metadata.pickup_date}T00:00:00Z`;
+    const returnISO = `${metadata.return_date}T23:59:59Z`;
+
+    const { data: conflictingBookings } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('vehicle_id', metadata.vehicle_id)
+      .in('booking_status', ['Confirmed', 'Active', 'PendingVerification', 'PendingPayment'])
+      .lt('pickup_date', returnISO)
+      .gt('return_date', pickupISO);
+
+    if (conflictingBookings && conflictingBookings.length > 0) {
+      const refund = await stripe.refunds.create({
+        payment_intent: session.payment_intent as string,
+        reason: 'duplicate',
+      });
+      console.error(`Vehicle ${metadata.vehicle_id} no longer available. Refund created: ${refund.id}`);
+      return new Response(
+        JSON.stringify({ status: 'error', error: 'Vehicle is no longer available. A refund has been initiated.' }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: blocks } = await supabase
+      .from('vehicle_blocks')
+      .select('id')
+      .eq('vehicle_id', metadata.vehicle_id)
+      .lt('blocked_from', returnISO)
+      .gt('blocked_until', pickupISO);
+
+    if (blocks && blocks.length > 0) {
+      const refund = await stripe.refunds.create({
+        payment_intent: session.payment_intent as string,
+        reason: 'duplicate',
+      });
+      console.error(`Vehicle ${metadata.vehicle_id} is blocked. Refund created: ${refund.id}`);
+      return new Response(
+        JSON.stringify({ status: 'error', error: 'Vehicle is blocked for the selected dates. A refund has been initiated.' }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const bookingData = {
       vehicle_id: metadata.vehicle_id,
       customer_name: metadata.customer_name,

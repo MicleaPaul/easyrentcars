@@ -162,16 +162,34 @@ Deno.serve(async (req: Request) => {
     const { data: pricingSettings } = await supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['cleaning_fee']);
+      .in('key', ['cleaning_fee', 'after_hours_fee', 'business_hours']);
 
     const dbCleaningFee = pricingSettings?.find(s => s.key === 'cleaning_fee')?.value?.amount || 7;
+    const dbAfterHoursFeeAmount = pricingSettings?.find(s => s.key === 'after_hours_fee')?.value?.amount || 30;
+    const businessHours = pricingSettings?.find(s => s.key === 'business_hours')?.value || {};
 
     const serverCleaningFee = dbCleaningFee;
 
+    const VALID_LOCATION_FEES = [0, 20];
+    const serverPickupFee = VALID_LOCATION_FEES.includes(bookingData.pickup_fee) ? bookingData.pickup_fee : 0;
+    const serverReturnFee = VALID_LOCATION_FEES.includes(bookingData.return_fee) ? bookingData.return_fee : 0;
+    const serverLocationFees = serverPickupFee + serverReturnFee;
+
+    const weekdayOpens = parseInt((businessHours.weekday?.opens || '07:00').split(':')[0]);
+    const weekdayCloses = parseInt((businessHours.weekday?.closes || '21:00').split(':')[0]);
+    const weekendOpens = parseInt((businessHours.weekend?.opens || '07:00').split(':')[0]);
+    const weekendCloses = parseInt((businessHours.weekend?.closes || '20:00').split(':')[0]);
+    const minHour = Math.min(weekdayOpens, weekendOpens);
+    const maxHour = Math.max(weekdayCloses, weekendCloses);
+    const pickupHour = parseInt(bookingData.pickup_time.split(':')[0]);
+    const returnHour = parseInt(bookingData.return_time.split(':')[0]);
+    const isAfterHours = pickupHour < minHour || pickupHour > maxHour || returnHour < minHour || returnHour > maxHour;
+    const serverAfterHoursFee = isAfterHours ? dbAfterHoursFeeAmount : 0;
+
     const serverTotal = (bookingData.rental_days * vehicle.price_per_day) +
       serverCleaningFee +
-      bookingData.location_fees +
-      bookingData.after_hours_fee;
+      serverLocationFees +
+      serverAfterHoursFee;
 
     if (Math.abs(bookingData.total_amount - serverTotal) > 1) {
       console.warn(`Total mismatch: client ${bookingData.total_amount}, server ${serverTotal}`);
@@ -222,7 +240,7 @@ Deno.serve(async (req: Request) => {
         });
       }
 
-      if (bookingData.location_fees > 0) {
+      if (serverLocationFees > 0) {
         lineItems.push({
           price_data: {
             currency: 'eur',
@@ -230,13 +248,13 @@ Deno.serve(async (req: Request) => {
               name: 'Location Fees',
               description: 'Pickup and Return Fees',
             },
-            unit_amount: Math.round(bookingData.location_fees * 100),
+            unit_amount: Math.round(serverLocationFees * 100),
           },
           quantity: 1,
         });
       }
 
-      if (bookingData.after_hours_fee > 0) {
+      if (serverAfterHoursFee > 0) {
         lineItems.push({
           price_data: {
             currency: 'eur',
@@ -244,7 +262,7 @@ Deno.serve(async (req: Request) => {
               name: 'After Hours Service',
               description: 'Service outside regular business hours',
             },
-            unit_amount: Math.round(bookingData.after_hours_fee * 100),
+            unit_amount: Math.round(serverAfterHoursFee * 100),
           },
           quantity: 1,
         });
@@ -278,8 +296,8 @@ Deno.serve(async (req: Request) => {
       rental_days: String(bookingData.rental_days),
       rental_cost: String(bookingData.rental_days * vehicle.price_per_day),
       cleaning_fee: String(serverCleaningFee),
-      location_fees: String(bookingData.location_fees),
-      after_hours_fee: String(bookingData.after_hours_fee),
+      location_fees: String(serverLocationFees),
+      after_hours_fee: String(serverAfterHoursFee),
       total_amount: String(serverTotal),
       deposit_amount: String(depositAmount),
       remaining_amount: String(remainingAmount),

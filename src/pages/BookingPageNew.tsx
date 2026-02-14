@@ -7,7 +7,6 @@ import { supabase } from '../lib/supabase';
 import { LocationPicker } from '../components/LocationPicker';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { checkVehicleAvailability } from '../lib/availabilityChecker';
-import { BookingSuccessModal } from '../components/BookingSuccessModal';
 import { ErrorModal } from '../components/ErrorModal';
 import { WarningModal } from '../components/WarningModal';
 import { SEOHead } from '../components/SEOHead';
@@ -26,10 +25,9 @@ interface Vehicle {
 
 interface BookingPageNewProps {
   onBack: () => void;
-  onComplete: () => void;
 }
 
-export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
+export function BookingPageNew({ onBack }: BookingPageNewProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -56,11 +54,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
   const [submitting, setSubmitting] = useState(false);
   const [showContractTooltip, setShowContractTooltip] = useState(false);
 
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [successModalData, setSuccessModalData] = useState<{
-    bookingId: string;
-    paymentMethod: string;
-  } | null>(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -812,17 +805,6 @@ export function BookingPageNew({ onBack, onComplete }: BookingPageNewProps) {
           </div>
         </div>
       </div>
-
-      {showSuccessModal && successModalData && (
-        <BookingSuccessModal
-          bookingId={successModalData.bookingId}
-          paymentMethod={successModalData.paymentMethod}
-          onClose={() => {
-            setShowSuccessModal(false);
-            onComplete();
-          }}
-        />
-      )}
 
       {showErrorModal && (
         <ErrorModal
