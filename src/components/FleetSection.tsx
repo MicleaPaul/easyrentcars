@@ -193,14 +193,14 @@ export function FleetSection() {
         {hasActiveFilters && filteredVehicles.length > 0 && (
           <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/30 rounded-lg flex items-center justify-between flex-wrap gap-3">
             <p className="text-[#9AA0A6] text-sm">
-              Showing <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> available vehicle{filteredVehicles.length !== 1 ? 's' : ''} for your selected dates
+              <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> {t('fleet.showingAvailableForDates')}
             </p>
             <button
               onClick={handleResetDates}
               className="flex items-center gap-2 px-3 py-1.5 bg-[#0B0C0F] border border-[#D4AF37]/20 rounded-lg text-[#9AA0A6] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all text-sm"
             >
               <X className="w-4 h-4" />
-              Clear dates
+              {t('fleet.clearDates')}
             </button>
           </div>
         )}
@@ -208,7 +208,7 @@ export function FleetSection() {
         {!hasActiveFilters && filteredVehicles.length > 0 && (
           <div className="mb-6 p-4 bg-[#111316] border border-[#D4AF37]/30 rounded-lg">
             <p className="text-[#9AA0A6] text-sm">
-              Showing <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> vehicle{filteredVehicles.length !== 1 ? 's' : ''} available now. Select dates to check availability for specific periods.
+              <span className="text-[#D4AF37] font-semibold">{filteredVehicles.length}</span> {t('fleet.availableNow')} {t('fleet.selectDatesToCheck')}
             </p>
           </div>
         )}
@@ -218,19 +218,19 @@ export function FleetSection() {
             <div className="max-w-md mx-auto">
               <p className="text-[#9AA0A6] text-lg mb-6">
                 {hasActiveFilters
-                  ? 'No vehicles available for your selected dates'
-                  : 'No vehicles found in this category'}
+                  ? t('fleet.noVehiclesForDates')
+                  : t('fleet.noVehiclesInCategory')}
               </p>
               {hasActiveFilters && (
                 <div className="space-y-4">
                   <p className="text-[#9AA0A6] text-sm">
-                    All vehicles are currently booked or blocked for the selected dates. Please try different dates.
+                    {t('fleet.allBookedTryDifferent')}
                   </p>
                   <button
                     onClick={handleResetDates}
                     className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#F4D03F] text-black font-semibold rounded-lg hover:shadow-xl transition-all"
                   >
-                    View All Available Vehicles
+                    {t('fleet.viewAllAvailable')}
                   </button>
                 </div>
               )}
