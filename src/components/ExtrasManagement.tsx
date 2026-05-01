@@ -199,10 +199,16 @@ export function ExtrasManagement() {
                 <div>
                   <label className="block text-[#9AA0A6] text-sm font-medium mb-2">{t('admin.extras.price')}</label>
                   <input
-                    type="number"
-                    step="0.01"
-                    value={editing.price ?? 0}
-                    onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })}
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    value={editing.price ?? ''}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(',', '.');
+                      if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
+                        setEditing({ ...editing, price: raw === '' ? 0 : Number(raw) });
+                      }
+                    }}
                     className="w-full bg-[#0B0C0F] text-white px-4 py-2.5 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none"
                   />
                 </div>
@@ -230,9 +236,16 @@ export function ExtrasManagement() {
                 <div>
                   <label className="block text-[#9AA0A6] text-sm font-medium mb-2">Sort order</label>
                   <input
-                    type="number"
-                    value={editing.sort_order ?? 0}
-                    onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })}
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={editing.sort_order ?? ''}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === '' || /^\d+$/.test(raw)) {
+                        setEditing({ ...editing, sort_order: raw === '' ? 0 : Number(raw) });
+                      }
+                    }}
                     className="w-full bg-[#0B0C0F] text-white px-4 py-2.5 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none"
                   />
                 </div>
