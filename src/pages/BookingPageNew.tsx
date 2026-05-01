@@ -684,7 +684,7 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
                       return (
                         <div
                           key={extra.id}
-                          className={`p-4 rounded-lg border-2 transition-all ${
+                          className={`p-4 rounded-lg border-2 overflow-hidden transition-colors duration-200 ${
                             selected ? 'border-[#D4AF37] bg-[#D4AF37]/10' : 'border-[#D4AF37]/20 hover:border-[#D4AF37]/40'
                           }`}
                         >
@@ -722,13 +722,13 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
                                   return next;
                                 });
                               }}
-                              className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
-                                selected ? 'bg-[#D4AF37]' : 'bg-[#0B0C0F] border border-[#D4AF37]/30'
+                              className={`relative w-11 h-6 rounded-full overflow-hidden border transition-colors duration-200 flex-shrink-0 box-border ${
+                                selected ? 'bg-[#D4AF37] border-[#D4AF37]' : 'bg-[#0B0C0F] border-[#D4AF37]/30'
                               }`}
                             >
                               <span
-                                className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
-                                  selected ? 'translate-x-5' : 'translate-x-0.5'
+                                className={`absolute top-1/2 left-0 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out ${
+                                  selected ? 'translate-x-[22px]' : 'translate-x-0.5'
                                 }`}
                               />
                             </button>
