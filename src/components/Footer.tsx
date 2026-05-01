@@ -155,6 +155,33 @@ export function Footer() {
           </div>
         </div>
 
+        <div className="pt-5 xs:pt-6 sm:pt-8 border-t border-[#F6C90E]/20 mb-5 xs:mb-6 sm:mb-8">
+          <h3 className="text-base xs:text-lg sm:text-xl font-bold text-white mb-3 xs:mb-4 uppercase tracking-wide">
+            {t('footer.impressum')}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xs:gap-4 text-[#B8B9BB] text-xs xs:text-sm">
+            <div className="space-y-1">
+              <p className="text-white font-semibold">Solomes Paul e.U.</p>
+              <p>Alte Poststraße 286</p>
+              <p>8053 Graz</p>
+            </div>
+            <div className="space-y-1">
+              <p>
+                <span className="text-white font-semibold">{t('footer.phone')}:</span>{' '}
+                <a href="tel:+436641584950" className="hover:text-[#F6C90E] transition-colors">
+                  +43 664 1584950
+                </a>
+              </p>
+              <p>
+                <span className="text-white font-semibold">{t('footer.email')}:</span>{' '}
+                <a href="mailto:easyrentgraz@gmail.com" className="hover:text-[#F6C90E] transition-colors break-all">
+                  easyrentgraz@gmail.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="pt-5 xs:pt-6 sm:pt-8 border-t border-[#F6C90E]/20 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
           <p className="text-[#B8B9BB] text-[10px] xs:text-xs sm:text-sm text-center sm:text-left">
             {t('footer.copyright')} | <span className="text-[#F6C90E]">EasyRentCars</span> - Car Rental Graz, Austria

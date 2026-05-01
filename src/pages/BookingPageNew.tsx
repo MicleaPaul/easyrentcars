@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Banknote, Shield, CheckCircle, Clock, AlertCircle, Info } from 'lucide-react';
+import { ArrowLeft, CreditCard, Banknote, Shield, CheckCircle, Clock, AlertCircle, Info, Lock, Package, Navigation, Users, Fuel, Baby, Globe, Wifi, Car as CarIcon, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBooking } from '../contexts/BookingContext';
 import { supabase } from '../lib/supabase';
@@ -22,6 +22,39 @@ interface Vehicle {
   price_per_day: number;
   minimum_age: number;
 }
+
+interface BookingExtra {
+  id: string;
+  name_de: string;
+  name_en: string;
+  name_fr: string;
+  name_it: string;
+  name_es: string;
+  name_ro: string;
+  description_de: string;
+  description_en: string;
+  description_fr: string;
+  description_it: string;
+  description_es: string;
+  description_ro: string;
+  price: number;
+  price_type: 'per_day' | 'one_time';
+  icon: string;
+  is_active: boolean;
+  sort_order: number;
+}
+
+const extraIconMap: Record<string, any> = {
+  Package,
+  Navigation,
+  Users,
+  Fuel,
+  Baby,
+  Globe,
+  Wifi,
+  Shield,
+  Car: CarIcon,
+};
 
 interface BookingPageNewProps {
   onBack: () => void;
@@ -64,8 +97,13 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
     email: '',
     phone: '',
     age: '',
+    address: '',
     notes: '',
   });
+
+  const [bookingExtras, setBookingExtras] = useState<BookingExtra[]>([]);
+  const [selectedExtraIds, setSelectedExtraIds] = useState<Set<string>>(new Set());
+  const [detailsExtra, setDetailsExtra] = useState<BookingExtra | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +142,39 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
     };
   }, [id]);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchExtras() {
+      try {
+        const { data, error } = await supabase
+          .from('booking_extras')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+        if (cancelled) return;
+        if (error) {
+          console.error('Error fetching extras:', error);
+          return;
+        }
+        setBookingExtras((data || []) as BookingExtra[]);
+      } catch (err) {
+        if (!cancelled) console.error(err);
+      }
+    }
+    fetchExtras();
+    return () => { cancelled = true; };
+  }, []);
+
+  const PICKUP_MAX_HOUR = 18;
+
+  useEffect(() => {
+    if (!pickupTime) return;
+    const [h] = pickupTime.split(':').map(Number);
+    if (h > PICKUP_MAX_HOUR) {
+      setPickupTime('18:00');
+    }
+  }, [pickupTime, setPickupTime]);
+
   const businessHours = settings.business_hours || {};
   const weekdayOpens = parseInt((businessHours.weekday?.opens || '07:00').split(':')[0]);
   const weekdayCloses = parseInt((businessHours.weekday?.closes || '21:00').split(':')[0]);
@@ -122,6 +193,10 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
   };
 
   const timeOptions = generateTimeOptions();
+  const pickupTimeOptions = timeOptions.filter((t) => {
+    const [h, m] = t.split(':').map(Number);
+    return h < PICKUP_MAX_HOUR || (h === PICKUP_MAX_HOUR && m === 0);
+  });
 
   const afterHoursFeeAmount = settings.after_hours_fee?.amount || 30;
 
@@ -166,7 +241,15 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
   const cleaningFeeAmount = settings.cleaning_fee?.amount || 7;
   const cleaningFee = cleaningFeeAmount;
   const rentalCost = car ? days * car.price_per_day : 0;
-  const total = rentalCost + cleaningFee + locationFees + afterHoursFee;
+
+  const selectedExtras = bookingExtras.filter((e) => selectedExtraIds.has(e.id));
+  const extrasCost = selectedExtras.reduce((sum, e) => {
+    const price = Number(e.price);
+    return sum + (e.price_type === 'per_day' ? price * days : price);
+  }, 0);
+
+  const total = rentalCost + cleaningFee + locationFees + afterHoursFee + extrasCost;
+  const DEPOSIT_AMOUNT = 500;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,6 +321,7 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
         customer_email: formData.email,
         customer_phone: formData.phone,
         customer_age: parseInt(formData.age),
+        customer_address: formData.address,
         pickup_date: pickupDate,
         return_date: returnDate,
         pickup_time: pickupTime,
@@ -430,6 +514,20 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
 
                 </div>
 
+                <div className="mt-4">
+                  <label className="block text-[#9AA0A6] text-sm font-medium mb-2">
+                    {t('bookingPage.address')} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all"
+                    placeholder={t('bookingPage.addressPlaceholder')}
+                  />
+                </div>
+
                 <div className="mt-6 space-y-4">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
@@ -504,7 +602,7 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
                           onChange={(e) => setPickupTime(e.target.value)}
                           className="w-full bg-[#0B0C0F] text-[#F5F7FA] px-4 py-3 rounded-lg border border-[#D4AF37]/20 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 transition-all appearance-none cursor-pointer"
                         >
-                          {timeOptions.map((time) => (
+                          {pickupTimeOptions.map((time) => (
                             <option key={time} value={time}>
                               {time}
                             </option>
@@ -571,6 +669,75 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
                   </div>
                 )}
               </div>
+
+              {bookingExtras.length > 0 && (
+                <div className="card-luxury p-6 sm:p-8">
+                  <h2 className="text-2xl font-bold text-white mb-2">{t('bookingPage.extrasTitle')}</h2>
+                  <p className="text-sm text-[#9AA0A6] mb-6">{t('bookingPage.extrasSubtitle')}</p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {bookingExtras.map((extra) => {
+                      const name = (extra as any)[`name_${language}`] || extra.name_en || '';
+                      const IconComp = extraIconMap[extra.icon] || Package;
+                      const selected = selectedExtraIds.has(extra.id);
+                      return (
+                        <div
+                          key={extra.id}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            selected ? 'border-[#D4AF37] bg-[#D4AF37]/10' : 'border-[#D4AF37]/20 hover:border-[#D4AF37]/40'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                selected ? 'bg-[#D4AF37]/20' : 'bg-[#0B0C0F]'
+                              }`}>
+                                <IconComp className={`w-5 h-5 ${selected ? 'text-[#D4AF37]' : 'text-[#9AA0A6]'}`} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-white font-semibold truncate">{name}</p>
+                                <p className="text-xs text-[#9AA0A6] mt-0.5">
+                                  EUR{Number(extra.price).toFixed(2)} {extra.price_type === 'per_day' ? t('bookingPage.extraPerDay') : t('bookingPage.extraOneTime')}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => setDetailsExtra(extra)}
+                                  className="text-xs text-[#D4AF37] hover:text-[#F4D03F] mt-1 inline-flex items-center gap-1"
+                                >
+                                  <Info className="w-3 h-3" />
+                                  {t('bookingPage.extraDetails')}
+                                </button>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={selected}
+                              onClick={() => {
+                                setSelectedExtraIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(extra.id)) next.delete(extra.id);
+                                  else next.add(extra.id);
+                                  return next;
+                                });
+                              }}
+                              className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
+                                selected ? 'bg-[#D4AF37]' : 'bg-[#0B0C0F] border border-[#D4AF37]/30'
+                              }`}
+                            >
+                              <span
+                                className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                                  selected ? 'translate-x-5' : 'translate-x-0.5'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="card-luxury p-6 sm:p-8">
                 <h2 className="text-2xl font-bold text-white mb-6">{t('bookingPage.paymentMethod')}</h2>
@@ -701,6 +868,23 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
             <div className="card-luxury p-6 sm:p-8 sticky top-24">
               <h3 className="text-xl font-bold text-white mb-6">{t('bookingPage.summary')}</h3>
 
+              <div className="mb-6 p-4 rounded-lg bg-[#D4AF37]/10 border border-[#D4AF37]/30">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#D4AF37]/20 flex items-center justify-center flex-shrink-0">
+                    <Lock className="w-4 h-4 text-[#D4AF37]" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-white font-semibold">{t('bookingPage.deposit')}</p>
+                      <p className="text-[#D4AF37] font-bold">{t('bookingPage.depositValue')}</p>
+                    </div>
+                    <p className="text-xs text-[#9AA0A6] mt-1 leading-relaxed">
+                      {t('bookingPage.depositInfo')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4 mb-6 pb-6 border-b border-[#D4AF37]/20">
                 <div>
                   <p className="text-xs text-[#9AA0A6] mb-1">{t('bookingPage.vehicle')}</p>
@@ -793,6 +977,17 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
                     <span className="text-white font-semibold">EUR{afterHoursFee}</span>
                   </div>
                 )}
+                {selectedExtras.map((extra) => {
+                  const name = (extra as any)[`name_${language}`] || extra.name_en || '';
+                  const price = Number(extra.price);
+                  const line = extra.price_type === 'per_day' ? price * days : price;
+                  return (
+                    <div key={extra.id} className="flex justify-between text-sm">
+                      <span className="text-[#9AA0A6]">{name} ({extra.price_type === 'per_day' ? `${days} x ${price.toFixed(2)}` : t('bookingPage.extraOneTime')})</span>
+                      <span className="text-white font-semibold">EUR{line.toFixed(2)}</span>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="pt-4 border-t border-[#D4AF37]/20">
@@ -805,6 +1000,39 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
           </div>
         </div>
       </div>
+
+      {detailsExtra && (() => {
+        const name = (detailsExtra as any)[`name_${language}`] || detailsExtra.name_en || '';
+        const desc = (detailsExtra as any)[`description_${language}`] || detailsExtra.description_en || '';
+        const IconComp = extraIconMap[detailsExtra.icon] || Package;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setDetailsExtra(null)}>
+            <div className="bg-[#111316] border border-[#D4AF37]/30 rounded-xl max-w-md w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/20 flex items-center justify-center">
+                    <IconComp className="w-5 h-5 text-[#D4AF37]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{name}</h3>
+                </div>
+                <button onClick={() => setDetailsExtra(null)} className="text-[#9AA0A6] hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-sm text-[#D4AF37] font-semibold mb-3">
+                EUR{Number(detailsExtra.price).toFixed(2)} {detailsExtra.price_type === 'per_day' ? t('bookingPage.extraPerDay') : t('bookingPage.extraOneTime')}
+              </p>
+              <p className="text-sm text-[#B8B9BB] leading-relaxed mb-6 whitespace-pre-line">{desc}</p>
+              <button
+                onClick={() => setDetailsExtra(null)}
+                className="w-full btn-primary py-3"
+              >
+                {t('bookingPage.extraClose')}
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {showErrorModal && (
         <ErrorModal
