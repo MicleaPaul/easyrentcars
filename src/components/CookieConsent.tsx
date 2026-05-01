@@ -117,10 +117,10 @@ export function CookieConsent() {
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-white font-semibold text-sm">{t('cookies.necessary') || 'Notwendig'}</h4>
                   <div
-                    className="w-10 h-5 bg-[#D4AF37] rounded-full flex items-center justify-end px-1 transition-all duration-200"
+                    className="relative w-11 h-6 bg-[#D4AF37] rounded-full transition-colors duration-200"
                     aria-label="Always active"
                   >
-                    <div className="w-3 h-3 bg-white rounded-full shadow-md" />
+                    <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md left-[22px]" />
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
@@ -139,13 +139,15 @@ export function CookieConsent() {
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-white font-semibold text-sm">{t('cookies.functional') || 'Funktional'}</h4>
                   <div
-                    className={`w-10 h-5 rounded-full flex items-center transition-all duration-200 ${
-                      functional ? 'bg-[#D4AF37] justify-end px-1' : 'bg-[#9AA0A6]/30 justify-start px-1'
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                      functional ? 'bg-[#D4AF37]' : 'bg-[#9AA0A6]/30'
                     }`}
                   >
-                    <div className={`w-3 h-3 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                      functional ? 'scale-100' : 'scale-75 opacity-70'
-                    }`} />
+                    <div
+                      className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 ease-out ${
+                        functional ? 'left-[22px]' : 'left-1'
+                      }`}
+                    />
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
@@ -164,13 +166,15 @@ export function CookieConsent() {
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-white font-semibold text-sm">{t('cookies.analytics') || 'Analyse'}</h4>
                   <div
-                    className={`w-10 h-5 rounded-full flex items-center transition-all duration-200 ${
-                      analytics ? 'bg-[#D4AF37] justify-end px-1' : 'bg-[#9AA0A6]/30 justify-start px-1'
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                      analytics ? 'bg-[#D4AF37]' : 'bg-[#9AA0A6]/30'
                     }`}
                   >
-                    <div className={`w-3 h-3 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                      analytics ? 'scale-100' : 'scale-75 opacity-70'
-                    }`} />
+                    <div
+                      className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 ease-out ${
+                        analytics ? 'left-[22px]' : 'left-1'
+                      }`}
+                    />
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
@@ -189,13 +193,15 @@ export function CookieConsent() {
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-white font-semibold text-sm">{t('cookies.marketing') || 'Marketing'}</h4>
                   <div
-                    className={`w-10 h-5 rounded-full flex items-center transition-all duration-200 ${
-                      marketing ? 'bg-[#D4AF37] justify-end px-1' : 'bg-[#9AA0A6]/30 justify-start px-1'
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                      marketing ? 'bg-[#D4AF37]' : 'bg-[#9AA0A6]/30'
                     }`}
                   >
-                    <div className={`w-3 h-3 bg-white rounded-full shadow-md transition-transform duration-200 ${
-                      marketing ? 'scale-100' : 'scale-75 opacity-70'
-                    }`} />
+                    <div
+                      className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md transition-all duration-300 ease-out ${
+                        marketing ? 'left-[22px]' : 'left-1'
+                      }`}
+                    />
                   </div>
                 </div>
                 <p className="text-xs text-[#9AA0A6]">
