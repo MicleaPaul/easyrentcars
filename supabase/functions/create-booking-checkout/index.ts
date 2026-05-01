@@ -46,6 +46,7 @@ interface BookingData {
   customer_email: string;
   customer_phone: string;
   customer_age: number;
+  customer_address?: string;
   pickup_date: string;
   return_date: string;
   pickup_time: string;
@@ -67,8 +68,18 @@ interface BookingData {
   location_fees: number;
   after_hours_fee: number;
   total_amount: number;
+  selected_extra_ids?: string[];
   success_url: string;
   cancel_url: string;
+}
+
+interface ExtraSnapshot {
+  id: string;
+  name: string;
+  unit_price: number;
+  price_type: 'per_day' | 'one_time';
+  quantity: number;
+  subtotal: number;
 }
 
 Deno.serve(async (req: Request) => {
@@ -186,10 +197,49 @@ Deno.serve(async (req: Request) => {
     const isAfterHours = pickupHour < minHour || pickupHour > maxHour || returnHour < minHour || returnHour > maxHour;
     const serverAfterHoursFee = isAfterHours ? dbAfterHoursFeeAmount : 0;
 
+    let extrasSnapshots: ExtraSnapshot[] = [];
+    let serverExtrasTotal = 0;
+
+    const requestedExtraIds = Array.isArray(bookingData.selected_extra_ids)
+      ? bookingData.selected_extra_ids.filter((x) => typeof x === 'string').slice(0, 50)
+      : [];
+
+    if (requestedExtraIds.length > 0) {
+      const { data: extrasRows, error: extrasError } = await supabase
+        .from('booking_extras')
+        .select('*')
+        .in('id', requestedExtraIds)
+        .eq('is_active', true);
+
+      if (extrasError) {
+        console.warn('Failed to load booking_extras:', extrasError);
+      }
+
+      const lang = bookingData.language || 'en';
+      for (const extra of extrasRows || []) {
+        const unitPrice = Number(extra.price) || 0;
+        const priceType = extra.price_type === 'per_day' ? 'per_day' : 'one_time';
+        const quantity = priceType === 'per_day' ? bookingData.rental_days : 1;
+        const subtotal = unitPrice * quantity;
+        const nameKey = `name_${lang}`;
+        const name = (extra[nameKey] as string) || extra.name_en || extra.name_de || 'Extra';
+        extrasSnapshots.push({
+          id: extra.id,
+          name,
+          unit_price: unitPrice,
+          price_type: priceType,
+          quantity,
+          subtotal,
+        });
+        serverExtrasTotal += subtotal;
+      }
+    }
+
     const serverTotal = (bookingData.rental_days * vehicle.price_per_day) +
       serverCleaningFee +
       serverLocationFees +
-      serverAfterHoursFee;
+      serverAfterHoursFee +
+      serverExtrasTotal;
 
     if (Math.abs(bookingData.total_amount - serverTotal) > 1) {
       console.warn(`Total mismatch: client ${bookingData.total_amount}, server ${serverTotal}`);
@@ -267,9 +317,28 @@ Deno.serve(async (req: Request) => {
           quantity: 1,
         });
       }
+
+      for (const extra of extrasSnapshots) {
+        lineItems.push({
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: extra.name,
+              description: extra.price_type === 'per_day'
+                ? `${extra.quantity} ${extra.quantity === 1 ? 'day' : 'days'} x EUR${extra.unit_price.toFixed(2)}`
+                : 'One-time',
+            },
+            unit_amount: Math.round(extra.subtotal * 100),
+          },
+          quantity: 1,
+        });
+      }
     }
 
-    const bookingMetadata = {
+    const extrasJson = JSON.stringify(extrasSnapshots);
+    const extrasMetaValue = extrasJson.length <= 500 ? extrasJson : '';
+
+    const bookingMetadata: Record<string, string> = {
       vehicle_id: bookingData.vehicle_id,
       vehicle_brand: vehicle.brand,
       vehicle_model: vehicle.model,
@@ -277,6 +346,7 @@ Deno.serve(async (req: Request) => {
       customer_email: bookingData.customer_email,
       customer_phone: bookingData.customer_phone,
       customer_age: String(bookingData.customer_age),
+      customer_address: (bookingData.customer_address || '').substring(0, 400),
       pickup_date: bookingData.pickup_date,
       return_date: bookingData.return_date,
       pickup_time: bookingData.pickup_time,
@@ -298,6 +368,9 @@ Deno.serve(async (req: Request) => {
       cleaning_fee: String(serverCleaningFee),
       location_fees: String(serverLocationFees),
       after_hours_fee: String(serverAfterHoursFee),
+      extras_total: String(serverExtrasTotal),
+      extras_ids: extrasSnapshots.map((e) => e.id).join(',').substring(0, 480),
+      extras_snapshot: extrasMetaValue,
       total_amount: String(serverTotal),
       deposit_amount: String(depositAmount),
       remaining_amount: String(remainingAmount),

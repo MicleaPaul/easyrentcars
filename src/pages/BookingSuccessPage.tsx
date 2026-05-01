@@ -5,11 +5,21 @@ import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SEOHead } from '../components/SEOHead';
 
+interface SelectedExtra {
+  id: string;
+  name: string;
+  unit_price: number;
+  price_type: 'per_day' | 'one_time';
+  quantity: number;
+  subtotal: number;
+}
+
 interface BookingDetails {
   id: string;
   customer_name: string;
   customer_email: string;
   customer_phone: string;
+  customer_address?: string | null;
   pickup_date: string;
   return_date: string;
   pickup_location: string;
@@ -29,6 +39,8 @@ interface BookingDetails {
   rental_cost?: number;
   deposit_amount?: number;
   remaining_amount?: number;
+  selected_extras?: SelectedExtra[] | null;
+  extras_total?: number | null;
   vehicle: {
     brand: string;
     model: string;
@@ -84,6 +96,9 @@ export function BookingSuccessPage() {
         rental_cost,
         deposit_amount,
         remaining_amount,
+        customer_address,
+        selected_extras,
+        extras_total,
         vehicles (
           brand,
           model,
@@ -130,6 +145,9 @@ export function BookingSuccessPage() {
         rental_cost,
         deposit_amount,
         remaining_amount,
+        customer_address,
+        selected_extras,
+        extras_total,
         vehicles (
           brand,
           model,
@@ -442,6 +460,12 @@ export function BookingSuccessPage() {
                   <Phone className="w-4 h-4" />
                   {booking.customer_phone}
                 </div>
+                {booking.customer_address && (
+                  <div className="flex items-start gap-2 text-[#9AA0A6] text-sm mt-1">
+                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <span>{booking.customer_address}</span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -546,6 +570,20 @@ export function BookingSuccessPage() {
               <div className="flex justify-between">
                 <span className="text-[#9AA0A6]">{t('bookingSuccess.afterHoursFee')}</span>
                 <span className="text-white font-semibold">EUR{booking.after_hours_fee}</span>
+              </div>
+            )}
+
+            {Array.isArray(booking.selected_extras) && booking.selected_extras.length > 0 && (
+              <div className="pt-2">
+                {booking.selected_extras.map((extra) => (
+                  <div key={extra.id} className="flex justify-between">
+                    <span className="text-[#9AA0A6]">
+                      {extra.name}
+                      {extra.price_type === 'per_day' && ` (${extra.quantity} x EUR${Number(extra.unit_price).toFixed(2)})`}
+                    </span>
+                    <span className="text-white font-semibold">EUR{Number(extra.subtotal).toFixed(2)}</span>
+                  </div>
+                ))}
               </div>
             )}
 

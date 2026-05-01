@@ -343,6 +343,7 @@ export function BookingPageNew({ onBack }: BookingPageNewProps) {
         location_fees: locationFees,
         after_hours_fee: afterHoursFee,
         total_amount: total,
+        selected_extra_ids: Array.from(selectedExtraIds),
       };
 
       const response = await fetch(

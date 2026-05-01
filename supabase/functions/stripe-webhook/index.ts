@@ -151,12 +151,51 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     const remainingAmount = parseFloat(metadata.remaining_amount || '0');
     const totalAmount = parseFloat(metadata.total_amount || '0');
 
+    let selectedExtras: any[] = [];
+    if (metadata.extras_snapshot) {
+      try {
+        const parsed = JSON.parse(metadata.extras_snapshot);
+        if (Array.isArray(parsed)) selectedExtras = parsed;
+      } catch (e) {
+        console.warn('Failed to parse extras_snapshot', e);
+      }
+    }
+
+    if (selectedExtras.length === 0 && metadata.extras_ids) {
+      const ids = metadata.extras_ids.split(',').map((s) => s.trim()).filter(Boolean);
+      if (ids.length > 0) {
+        const { data: extrasRows } = await supabase
+          .from('booking_extras')
+          .select('*')
+          .in('id', ids);
+        const rentalDays = parseInt(metadata.rental_days || '1');
+        const lang = metadata.language || 'en';
+        for (const extra of extrasRows || []) {
+          const unitPrice = Number(extra.price) || 0;
+          const priceType = extra.price_type === 'per_day' ? 'per_day' : 'one_time';
+          const quantity = priceType === 'per_day' ? rentalDays : 1;
+          const nameKey = `name_${lang}`;
+          selectedExtras.push({
+            id: extra.id,
+            name: extra[nameKey] || extra.name_en || extra.name_de || 'Extra',
+            unit_price: unitPrice,
+            price_type: priceType,
+            quantity,
+            subtotal: unitPrice * quantity,
+          });
+        }
+      }
+    }
+
+    const extrasTotal = selectedExtras.reduce((sum, e) => sum + (Number(e.subtotal) || 0), 0);
+
     const bookingData = {
       vehicle_id: metadata.vehicle_id,
       customer_name: metadata.customer_name,
       customer_email: metadata.customer_email,
       customer_phone: metadata.customer_phone,
       customer_age: parseInt(metadata.customer_age),
+      customer_address: metadata.customer_address || '',
       pickup_date: pickupDateTime,
       return_date: returnDateTime,
       pickup_location: metadata.pickup_location,
@@ -171,6 +210,8 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       rental_days: parseInt(metadata.rental_days || '1'),
       cleaning_fee: parseFloat(metadata.cleaning_fee || '0'),
       after_hours_fee: parseFloat(metadata.after_hours_fee || '0'),
+      selected_extras: selectedExtras,
+      extras_total: extrasTotal,
       payment_method: metadata.payment_method,
       payment_status: 'paid',
       booking_status: 'Confirmed',
